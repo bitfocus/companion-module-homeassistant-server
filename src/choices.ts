@@ -1,29 +1,6 @@
 import { HassEntities } from 'home-assistant-js-websocket'
-import {
-  CompanionInputFieldCheckbox,
-  CompanionInputFieldDropdown,
-  CompanionInputFieldNumber
-} from '../../../instance_skel_types'
+import { CompanionInputFieldCheckbox, CompanionInputFieldDropdown } from '../../../instance_skel_types'
 import { OnOffToggle } from './util'
-
-export function VolumePicker(): CompanionInputFieldNumber {
-  return {
-    type: 'number',
-    label: 'Volume',
-    id: 'volume',
-    default: 50,
-    max: 100,
-    min: 0
-  }
-}
-export function MutedPicker(): CompanionInputFieldCheckbox {
-  return {
-    type: 'checkbox',
-    label: 'Muted',
-    id: 'muted',
-    default: false
-  }
-}
 
 export function OnOffTogglePicker(): CompanionInputFieldDropdown {
   const options = [
