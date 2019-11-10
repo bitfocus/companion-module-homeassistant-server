@@ -1,0 +1,78 @@
+import { HassEntities } from 'home-assistant-js-websocket'
+import InstanceSkel = require('../../../instance_skel')
+import {
+  CompanionFeedbackEvent,
+  CompanionFeedbackResult,
+  CompanionFeedbacks,
+  CompanionInputFieldColor
+} from '../../../instance_skel_types'
+import { OnOffPicker, SwitchEntityPicker } from './choices'
+import { DeviceConfig } from './config'
+import { assertUnreachable } from './util'
+
+export enum FeedbackId {
+  SwitchState = 'switch_state'
+}
+
+export function ForegroundPicker(color: number): CompanionInputFieldColor {
+  return {
+    type: 'colorpicker',
+    label: 'Foreground color',
+    id: 'fg',
+    default: color
+  }
+}
+export function BackgroundPicker(color: number): CompanionInputFieldColor {
+  return {
+    type: 'colorpicker',
+    label: 'Background color',
+    id: 'bg',
+    default: color
+  }
+}
+
+export function GetFeedbacksList(instance: InstanceSkel<DeviceConfig>, state: HassEntities) {
+  const feedbacks: CompanionFeedbacks = {}
+
+  feedbacks[FeedbackId.SwitchState] = {
+    label: 'Change colors from switch state',
+    description: 'If the switch state matches the rule, change colors of the bank',
+    options: [
+      ForegroundPicker(instance.rgb(255, 255, 255)),
+      BackgroundPicker(instance.rgb(0, 255, 0)),
+      SwitchEntityPicker(state),
+      OnOffPicker()
+    ]
+  }
+
+  return feedbacks
+}
+
+export function ExecuteFeedback(
+  instance: InstanceSkel<DeviceConfig>,
+  state: HassEntities,
+  feedback: CompanionFeedbackEvent
+): CompanionFeedbackResult {
+  const opt = feedback.options
+  const getOptColors = () => ({ color: parseInt(opt.fg, 10), bgcolor: parseInt(opt.bg, 10) })
+
+  const feedbackType = feedback.type as FeedbackId
+  switch (feedbackType) {
+    case FeedbackId.SwitchState: {
+      const entity = state[opt.entity_id]
+      if (entity) {
+        const isOn = entity.state === 'on'
+        const targetOn = !!opt.state
+        if (isOn === targetOn) {
+          return getOptColors()
+        }
+      }
+      break
+    }
+    default:
+      assertUnreachable(feedbackType)
+      instance.debug('Unknown action: ' + feedback.type)
+  }
+
+  return {}
+}
