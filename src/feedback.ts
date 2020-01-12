@@ -54,12 +54,12 @@ export function ExecuteFeedback(
   feedback: CompanionFeedbackEvent
 ): CompanionFeedbackResult {
   const opt = feedback.options
-  const getOptColors = () => ({ color: parseInt(opt.fg, 10), bgcolor: parseInt(opt.bg, 10) })
+  const getOptColors = () => ({ color: Number(opt.fg), bgcolor: Number(opt.bg) })
 
   const feedbackType = feedback.type as FeedbackId
   switch (feedbackType) {
     case FeedbackId.SwitchState: {
-      const entity = state[opt.entity_id]
+      const entity = state[String(opt.entity_id)]
       if (entity) {
         const isOn = entity.state === 'on'
         const targetOn = !!opt.state

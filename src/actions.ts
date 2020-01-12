@@ -42,7 +42,7 @@ export function HandleAction(
     const actionId = action.action as ActionId
     switch (actionId) {
       case ActionId.SetSwitch: {
-        const entity = state[opt.entity_id]
+        const entity = state[String(opt.entity_id)]
         if (entity) {
           let newState: string
           switch (opt.state as OnOffToggle) {
