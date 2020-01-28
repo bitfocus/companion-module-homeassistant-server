@@ -2,7 +2,7 @@ import { HassEntities } from 'home-assistant-js-websocket'
 import InstanceSkel = require('../../../instance_skel')
 import { CompanionPreset } from '../../../instance_skel_types'
 import { ActionId } from './actions'
-import { SwitchEntityPicker } from './choices'
+import { EntityPicker } from './choices'
 import { DeviceConfig } from './config'
 import { FeedbackId } from './feedback'
 import { OnOffToggle } from './util'
@@ -23,7 +23,7 @@ interface CompanionPresetExt extends CompanionPreset {
 export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: HassEntities): CompanionPreset[] {
   const presets: CompanionPresetExt[] = []
 
-  const switchPicker = SwitchEntityPicker(state)
+  const switchPicker = EntityPicker(state, 'switch')
   switchPicker.choices.forEach(ent => {
     presets.push({
       category: 'Switch',

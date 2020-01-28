@@ -26,8 +26,8 @@ export function OnOffPicker(): CompanionInputFieldCheckbox {
   }
 }
 
-export function SwitchEntityPicker(state: HassEntities): CompanionInputFieldDropdown {
-  const entities = Object.values(state).filter(ent => ent.entity_id.indexOf('switch.') === 0)
+export function EntityPicker(state: HassEntities, prefix: string): CompanionInputFieldDropdown {
+  const entities = Object.values(state).filter(ent => ent.entity_id.indexOf(`${prefix}.`) === 0)
   return {
     type: 'dropdown',
     label: 'Entity',

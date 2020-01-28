@@ -6,12 +6,13 @@ import {
   CompanionFeedbacks,
   CompanionInputFieldColor
 } from '../../../instance_skel_types'
-import { OnOffPicker, SwitchEntityPicker } from './choices'
+import { EntityPicker, OnOffPicker } from './choices'
 import { DeviceConfig } from './config'
 import { assertUnreachable } from './util'
 
 export enum FeedbackId {
-  SwitchState = 'switch_state'
+  SwitchState = 'switch_state',
+  LightOnState = 'light_on_state'
 }
 
 export function ForegroundPicker(color: number): CompanionInputFieldColor {
@@ -40,7 +41,17 @@ export function GetFeedbacksList(instance: InstanceSkel<DeviceConfig>, state: Ha
     options: [
       ForegroundPicker(instance.rgb(255, 255, 255)),
       BackgroundPicker(instance.rgb(0, 255, 0)),
-      SwitchEntityPicker(state),
+      EntityPicker(state, 'switch'),
+      OnOffPicker()
+    ]
+  }
+  feedbacks[FeedbackId.LightOnState] = {
+    label: 'Change colors from light on state',
+    description: 'If the light state matches the rule, change colors of the bank',
+    options: [
+      ForegroundPicker(instance.rgb(255, 255, 255)),
+      BackgroundPicker(instance.rgb(0, 255, 0)),
+      EntityPicker(state, 'light'),
       OnOffPicker()
     ]
   }
@@ -58,7 +69,8 @@ export function ExecuteFeedback(
 
   const feedbackType = feedback.type as FeedbackId
   switch (feedbackType) {
-    case FeedbackId.SwitchState: {
+    case FeedbackId.SwitchState:
+    case FeedbackId.LightOnState: {
       const entity = state[String(opt.entity_id)]
       if (entity) {
         const isOn = entity.state === 'on'

@@ -1,12 +1,13 @@
 import { Connection, HassEntities } from 'home-assistant-js-websocket'
 import InstanceSkel = require('../../../instance_skel')
 import { CompanionActionEvent, CompanionActions } from '../../../instance_skel_types'
-import { OnOffTogglePicker, SwitchEntityPicker } from './choices'
+import { EntityPicker, OnOffTogglePicker } from './choices'
 import { DeviceConfig } from './config'
 import { assertUnreachable, OnOffToggle } from './util'
 
 export enum ActionId {
-  SetSwitch = 'set_switch'
+  SetSwitch = 'set_switch',
+  SetLightOn = 'set_light_on'
 }
 
 export function GetActionsList(state: HassEntities) {
@@ -14,7 +15,11 @@ export function GetActionsList(state: HassEntities) {
 
   actions[ActionId.SetSwitch] = {
     label: 'Set switch state',
-    options: [SwitchEntityPicker(state), OnOffTogglePicker()]
+    options: [EntityPicker(state, 'switch'), OnOffTogglePicker()]
+  }
+  actions[ActionId.SetLightOn] = {
+    label: 'Set light on/off state',
+    options: [EntityPicker(state, 'light'), OnOffTogglePicker()]
   }
 
   return actions
@@ -41,7 +46,8 @@ export function HandleAction(
   try {
     const actionId = action.action as ActionId
     switch (actionId) {
-      case ActionId.SetSwitch: {
+      case ActionId.SetSwitch:
+      case ActionId.SetLightOn: {
         const entity = state[String(opt.entity_id)]
         if (entity) {
           let newState: string
