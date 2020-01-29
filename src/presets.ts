@@ -57,6 +57,40 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
       ]
     })
   })
+  const lightPicker = EntityPicker(state, 'light')
+  lightPicker.choices.forEach(ent => {
+    presets.push({
+      category: 'Light',
+      label: `Light ${ent.label}`,
+      bank: {
+        style: 'text',
+        text: ent.label,
+        size: 'auto',
+        color: instance.rgb(255, 255, 255),
+        bgcolor: instance.rgb(0, 0, 0)
+      },
+      feedbacks: [
+        {
+          type: FeedbackId.LightOnState,
+          options: {
+            bg: instance.rgb(0, 255, 0),
+            fg: instance.rgb(255, 255, 255),
+            entity_id: ent.id,
+            state: true
+          }
+        }
+      ],
+      actions: [
+        {
+          action: ActionId.SetLightOn,
+          options: {
+            entity_id: ent.id,
+            state: OnOffToggle.Toggle
+          }
+        }
+      ]
+    })
+  })
 
   return presets
 }
