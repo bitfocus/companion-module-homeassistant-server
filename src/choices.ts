@@ -33,9 +33,15 @@ export function EntityPicker(state: HassEntities, prefix: string): CompanionInpu
     label: 'Entity',
     id: 'entity_id',
     default: entities[0] ? entities[0].entity_id : '',
-    choices: entities.map(ent => ({
-      id: ent.entity_id,
-      label: ent.attributes.friendly_name || ent.entity_id
-    }))
+    choices: entities
+      .map(ent => ({
+        id: ent.entity_id,
+        label: ent.attributes.friendly_name || ent.entity_id
+      }))
+      .sort((a, b) => {
+        const a2 = a.label.toLowerCase()
+        const b2 = b.label.toLowerCase()
+        return a2 === b2 ? 0 : a2 < b2 ? -1 : 1
+      })
   }
 }
