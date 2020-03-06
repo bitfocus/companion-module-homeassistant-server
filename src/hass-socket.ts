@@ -8,8 +8,8 @@ https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/so
 */
 
 import * as ha from 'home-assistant-js-websocket'
-import * as WebSocket from 'ws'
 import { HaWebSocket } from 'home-assistant-js-websocket/dist/socket'
+import * as WebSocket from 'ws'
 import InstanceSkel = require('../../../instance_skel')
 
 const MSG_TYPE_AUTH_REQUIRED = 'auth_required'
@@ -34,7 +34,7 @@ export function hassErrorToString(e: number) {
 export function createSocket(
   auth: ha.Auth,
   ignoreCertificates: boolean,
-  instance: InstanceSkel<any>
+  instance: InstanceSkel<any> & { needsReconnect: boolean }
 ): Promise<HaWebSocket> {
   // Convert from http:// -> ws://, https:// -> wss://
   const url = auth.wsUrl
@@ -42,6 +42,12 @@ export function createSocket(
   instance.debug('[Auth phase] Initializing WebSocket connection to Home Assistant', url)
 
   function connect(triesLeft: number, promResolve: (socket: HaWebSocket) => void, promReject: (err: number) => void) {
+    if (instance.needsReconnect) {
+      // Force rejection, to start again with a new url
+      promReject(ha.ERR_CONNECTION_LOST)
+      return
+    }
+
     instance.debug('[Auth Phase] Connecting to Home Assistant...', url)
     instance.status(instance.STATUS_WARNING, 'Connecting')
 

@@ -25,6 +25,8 @@ import { InitVariables, updateVariables } from './variables'
 const RECONNECT_INTERVAL = 5000
 
 class ControllerInstance extends InstanceSkel<DeviceConfig> {
+  public needsReconnect: boolean
+
   private state: HassEntities
   private client: Connection | undefined
   private connecting: boolean
@@ -37,6 +39,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
     this.connecting = false
     this.state = {}
     this.initDone = false
+    this.needsReconnect = false
   }
 
   // Override base types to make types stricter
@@ -69,7 +72,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
     this.config = config
 
     if (this.connecting) {
-      // TODO - queue a reconnect upon current connection completing/failing
+      this.needsReconnect = true
       return
     }
 
@@ -120,15 +123,22 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
     try {
       if (this.unsubscribeEntities) {
         this.unsubscribeEntities()
+        this.unsubscribeEntities = undefined
       }
       if (this.client) {
         this.client.close()
+        this.client = undefined
       }
     } catch (e) {
       // Ignore
     }
 
+    this.needsReconnect = false
+    this.initDone = false
+    this.state = {}
+
     this.debug('destroy', this.id)
+    this.status(this.STATUS_UNKNOWN)
   }
 
   /**
@@ -142,6 +152,8 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
     if (this.connecting || this.client) {
       return
     }
+
+    this.needsReconnect = false
 
     const auth = new Auth({
       access_token: this.config.access_token || '',
@@ -180,6 +192,12 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
         this.unsubscribeEntities = subscribeEntities(connection, this.processStateChange.bind(this))
       })
       .catch((e: number | string) => {
+        if (this.needsReconnect) {
+          // Restart the process with the new url
+          setImmediate(() => this.tryConnect())
+          return
+        }
+
         const errorMsg = isNumber(e) ? hassErrorToString(e) : e
         this.connecting = false
         this.client = undefined
