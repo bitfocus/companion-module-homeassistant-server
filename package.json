@@ -4,12 +4,12 @@
 	"api_version": "1.0.0",
 	"description": "Home Assistant",
 	"keywords": [
-		"Custom"
+		"Generic"
 	],
-	"manufacturer": "Custom",
+	"manufacturer": "Home Assistant",
 	"product": "Home Assistant",
 	"shortname": "home-assistant",
-	"homepage": "https://git.julusian.co.uk/companion/module-home-assistant#readme",
+	"homepage": "https://github.com/bitfocus/companion-module-home-assistant#readme",
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "trash dist && yarn build:main",
