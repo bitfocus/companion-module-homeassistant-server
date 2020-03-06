@@ -26,6 +26,7 @@
     "listFiles": false,
     "traceResolution": false,
     "pretty": true,
+    "skipLibCheck": true,
     "lib": ["es6"],
     "types": ["node", "jest"],
     "typeRoots": ["./node_modules/@types", "./types"]

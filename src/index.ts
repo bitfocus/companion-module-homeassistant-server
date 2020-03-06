@@ -22,6 +22,8 @@ import { createSocket, hassErrorToString } from './hass-socket'
 import { GetPresetsList } from './presets'
 import { InitVariables, updateVariables } from './variables'
 
+const RECONNECT_INTERVAL = 5000
+
 class ControllerInstance extends InstanceSkel<DeviceConfig> {
   private state: HassEntities
   private client: Connection | undefined
@@ -83,38 +85,12 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
       // Ignore
     }
 
-    const authToken = {
-      access_token: config.access_token || '',
-      expires: Date.now() + 1e11,
-      hassUrl: config.url || ''
-    }
-
     this.initDone = false
     this.state = {}
     updateVariables(this, this.state)
     this.checkFeedbacks()
 
-    this.connecting = true
-    createConnection({
-      auth: new Auth(authToken as any),
-      createSocket
-    })
-      .then(connection => {
-        this.client = connection
-        this.connecting = false
-        this.status(this.STATUS_OK)
-
-        // TODO - listen for disconnect etc
-
-        this.unsubscribeEntities = subscribeEntities(connection, this.processStateChange.bind(this))
-      })
-      .catch((e: number | string) => {
-        const errorMsg = isNumber(e) ? hassErrorToString(e) : e
-        this.connecting = false
-        this.status(this.STATUS_ERROR, errorMsg)
-
-        // TODO - try reconnect?
-      })
+    this.tryConnect()
   }
 
   public upgradeConfig() {
@@ -160,6 +136,59 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
    */
   public feedback(feedback: CompanionFeedbackEvent): CompanionFeedbackResult {
     return ExecuteFeedback(this, this.state, feedback)
+  }
+
+  private tryConnect() {
+    if (this.connecting || this.client) {
+      return
+    }
+
+    const auth = new Auth({
+      access_token: this.config.access_token || '',
+      expires: Date.now() + 1e11,
+      hassUrl: this.config.url || ''
+    } as any)
+
+    this.connecting = true
+    createConnection({
+      auth,
+      createSocket: () => createSocket(auth, this.config.ignore_certificates || false, this)
+    })
+      .then(connection => {
+        this.client = connection
+        this.connecting = false
+        this.status(this.STATUS_OK)
+
+        this.log('info', `Connected to v${connection.haVersion}`)
+
+        connection.addEventListener('disconnected', () => {
+          this.connecting = true
+          this.status(this.STATUS_ERROR, 'Lost connection')
+          this.log('info', `Lost connection`)
+        })
+        connection.addEventListener('ready', () => {
+          this.connecting = false
+          this.status(this.STATUS_OK)
+          this.log('info', `Reconnected to v${connection.haVersion}`)
+        })
+        connection.addEventListener('reconnect-error', () => {
+          this.connecting = false
+          this.status(this.STATUS_ERROR, 'Reconnect failed')
+          this.log('info', `Reconnect failed`)
+        })
+
+        this.unsubscribeEntities = subscribeEntities(connection, this.processStateChange.bind(this))
+      })
+      .catch((e: number | string) => {
+        const errorMsg = isNumber(e) ? hassErrorToString(e) : e
+        this.connecting = false
+        this.client = undefined
+        this.status(this.STATUS_ERROR, errorMsg)
+        this.log('error', `Connect failed: ${errorMsg}`)
+
+        // Try and reset connection
+        setTimeout(() => this.tryConnect(), RECONNECT_INTERVAL)
+      })
   }
 
   /**

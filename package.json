@@ -35,7 +35,7 @@
 		]
 	},
 	"dependencies": {
-		"home-assistant-js-websocket": "^4.4.0",
+		"home-assistant-js-websocket": "^4.5.0",
 		"ws": "^7.2.0"
 	},
 	"devDependencies": {
