@@ -1,15 +1,15 @@
 {
-	"name": "home-assistant",
+	"name": "homeassistant-server",
 	"version": "0.1.0",
 	"api_version": "1.0.0",
-	"description": "Home Assistant",
+	"description": "Home Assistant Server",
 	"keywords": [
 		"Generic"
 	],
 	"manufacturer": "Home Assistant",
-	"product": "Home Assistant",
-	"shortname": "home-assistant",
-	"homepage": "https://github.com/bitfocus/companion-module-home-assistant#readme",
+	"product": "Server",
+	"shortname": "homeassistant-server",
+	"homepage": "https://github.com/bitfocus/companion-module-homeassistant-server#readme",
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "trash dist && yarn build:main",
