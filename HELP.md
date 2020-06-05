@@ -4,3 +4,4 @@
 
 - Set switch state
 - Set light state
+- Execute script

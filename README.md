@@ -10,3 +10,8 @@ The module can be built once with `yarn build`. This should be enough to get the
 While developing the module, by using `yarn build:watch` the compiler will be run in watch mode to recompile the files on change.
 
 ## Changes
+
+### v0.2.0
+
+- Add binary_sensor feedback
+- Add executing scripts
