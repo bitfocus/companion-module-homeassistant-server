@@ -15,8 +15,7 @@
 		"build": "trash dist && yarn build:main",
 		"build:main": "tsc -p tsconfig.build.json",
 		"build:watch": "tsc -p tsconfig.build.json --watch",
-		"lint": "tslint --project tsconfig.json --config tslint.json",
-		"tslint-check": "tslint-config-prettier-check ./tslint.json",
+		"lint": "eslint . --ext .ts",
 		"postinstall": "yarn build"
 	},
 	"author": "Julian Waller <git@julusian.co.uk>",
@@ -39,13 +38,15 @@
 	"devDependencies": {
 		"@types/node": "^12.0.4",
 		"@types/ws": "^7.2.0",
+		"@typescript-eslint/eslint-plugin": "~2.31.0",
+		"@typescript-eslint/parser": "~2.31.0",
+		"eslint": "^6.8.0",
+		"eslint-config-prettier": "^6.11.0",
+		"eslint-plugin-prettier": "^3.1.3",
 		"husky": "^3.0.5",
 		"lint-staged": "^9.2.5",
 		"prettier": "^1.17.1",
 		"trash-cli": "^3.0.0",
-		"tslint": "^5.20.0",
-		"tslint-config-prettier": "^1.18.0",
-		"tslint-plugin-prettier": "^2.0.1",
 		"typescript": "^3.7.2"
 	}
 }
