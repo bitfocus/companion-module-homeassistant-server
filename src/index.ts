@@ -4,7 +4,8 @@ import {
   createConnection,
   HassEntities,
   subscribeEntities,
-  UnsubscribeFunc
+  UnsubscribeFunc,
+  AuthData
 } from 'home-assistant-js-websocket'
 import { isNumber } from 'util'
 import InstanceSkel = require('../../../instance_skel')
@@ -37,7 +38,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
   }
 
   // Override base types to make types stricter
-  public checkFeedbacks(feedbackId?: FeedbackId, ignoreInitDone?: boolean) {
+  public checkFeedbacks(feedbackId?: FeedbackId, ignoreInitDone?: boolean): void {
     if (ignoreInitDone || this.initDone) {
       super.checkFeedbacks(feedbackId)
     }
@@ -47,7 +48,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
    * Main initialization function called once the module
    * is OK to start doing things.
    */
-  public init() {
+  public init(): void {
     this.status(this.STATUS_UNKNOWN)
     this.updateConfig(this.config)
 
@@ -62,7 +63,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
   /**
    * Process an updated configuration array.
    */
-  public updateConfig(config: DeviceConfig) {
+  public updateConfig(config: DeviceConfig): void {
     this.config = config
 
     if (this.connecting) {
@@ -90,7 +91,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
     this.tryConnect()
   }
 
-  public upgradeConfig() {
+  public upgradeConfig(): void {
     // Nothing to do
   }
 
@@ -104,7 +105,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
   /**
    * Clean up the instance before it is destroyed.
    */
-  public destroy() {
+  public destroy(): void {
     try {
       if (this.unsubscribeEntities) {
         this.unsubscribeEntities()
@@ -126,18 +127,18 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
     this.status(this.STATUS_UNKNOWN)
   }
 
-  private tryConnect() {
+  private tryConnect(): void {
     if (this.connecting || this.client) {
       return
     }
 
     this.needsReconnect = false
 
-    const auth = new Auth({
+    const auth = new Auth(({
       access_token: this.config.access_token || '',
       expires: Date.now() + 1e11,
       hassUrl: this.config.url || ''
-    } as any)
+    } as unknown) as AuthData)
 
     this.connecting = true
     createConnection({
@@ -190,7 +191,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
   /**
    * Handle state changes
    */
-  private processStateChange(newState: HassEntities) {
+  private processStateChange(newState: HassEntities): void {
     const entitiesChanged =
       JSON.stringify(Object.keys(this.state).sort()) !== JSON.stringify(Object.keys(newState).sort())
 

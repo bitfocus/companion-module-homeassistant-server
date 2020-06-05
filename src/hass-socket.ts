@@ -16,7 +16,7 @@ const MSG_TYPE_AUTH_REQUIRED = 'auth_required'
 const MSG_TYPE_AUTH_INVALID = 'auth_invalid'
 const MSG_TYPE_AUTH_OK = 'auth_ok'
 
-export function hassErrorToString(e: number) {
+export function hassErrorToString(e: number): string {
   switch (e) {
     case ha.ERR_CANNOT_CONNECT:
       return 'ERR_CANNOT_CONNECT'
@@ -34,14 +34,18 @@ export function hassErrorToString(e: number) {
 export function createSocket(
   auth: ha.Auth,
   ignoreCertificates: boolean,
-  instance: InstanceSkel<any> & { needsReconnect: boolean }
+  instance: InstanceSkel<unknown> & { needsReconnect: boolean }
 ): Promise<HaWebSocket> {
   // Convert from http:// -> ws://, https:// -> wss://
   const url = auth.wsUrl
 
   instance.debug('[Auth phase] Initializing WebSocket connection to Home Assistant', url)
 
-  function connect(triesLeft: number, promResolve: (socket: HaWebSocket) => void, promReject: (err: number) => void) {
+  function connect(
+    triesLeft: number,
+    promResolve: (socket: HaWebSocket) => void,
+    promReject: (err: number) => void
+  ): void {
     if (instance.needsReconnect) {
       // Force rejection, to start again with a new url
       promReject(ha.ERR_CONNECTION_LOST)
@@ -58,7 +62,7 @@ export function createSocket(
     // If invalid auth, we will not try to reconnect.
     let invalidAuth = false
 
-    const closeMessage = (ev: { wasClean: boolean; code: number; reason: string; target: WebSocket }) => {
+    const closeMessage = (ev: { wasClean: boolean; code: number; reason: string; target: WebSocket }): void => {
       let msg: string | undefined
       if (ev && ev.code && ev.code !== 1000) {
         msg = `Connection closed with code ${ev.code} and reason ${ev.reason}`
@@ -66,7 +70,8 @@ export function createSocket(
       closeOrError(msg)
     }
 
-    const errorMessage = (ev: { error: any; message: any; type: string; target: WebSocket }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const errorMessage = (ev: { error: any; message: any; type: string; target: WebSocket }): void => {
       // If we are in error handler make sure close handler doesn't also fire.
       socket.removeEventListener('close', closeMessage)
       let msg = 'Disconnected with a WebSocket error'
@@ -76,7 +81,7 @@ export function createSocket(
       closeOrError(msg)
     }
 
-    const closeOrError = (errorText?: string) => {
+    const closeOrError = (errorText?: string): void => {
       instance.status(instance.STATUS_ERROR, errorText)
       if (errorText) {
         instance.debug(`Connection closed: ${errorText}`)
@@ -99,7 +104,7 @@ export function createSocket(
     }
 
     // Auth is mandatory, so we can send the auth message right away.
-    const handleOpen = async () => {
+    const handleOpen = async (): Promise<void> => {
       try {
         if (auth.expired) {
           await auth.refreshAccessToken()
@@ -117,7 +122,8 @@ export function createSocket(
       }
     }
 
-    const handleMessage = async (event: { data: any; type: string; target: WebSocket }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleMessage = async (event: { data: any; type: string; target: WebSocket }): Promise<void> => {
       const message = JSON.parse(event.data)
 
       instance.debug(`[Auth phase] Received a message of type ${message.type}`, message)
@@ -128,16 +134,17 @@ export function createSocket(
           socket.close()
           break
 
-        case MSG_TYPE_AUTH_OK:
+        case MSG_TYPE_AUTH_OK: {
           socket.removeEventListener('open', handleOpen)
           socket.removeEventListener('message', handleMessage)
           socket.removeEventListener('close', closeMessage)
           socket.removeEventListener('error', errorMessage)
 
-          const socket2 = (socket as any) as HaWebSocket
+          const socket2 = (socket as unknown) as HaWebSocket
           socket2.haVersion = message.ha_version
           promResolve(socket2)
           break
+        }
 
         default:
           // We already send this message when socket opens

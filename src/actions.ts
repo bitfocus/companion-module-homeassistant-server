@@ -1,5 +1,5 @@
 import { Connection, HassEntities } from 'home-assistant-js-websocket'
-import { CompanionActionEvent, CompanionActions } from '../../../instance_skel_types'
+import { CompanionActionEvent, CompanionActions, CompanionAction } from '../../../instance_skel_types'
 import { EntityPicker, OnOffTogglePicker } from './choices'
 import { OnOffToggle } from './util'
 
@@ -9,10 +9,12 @@ export enum ActionId {
   ExecuteScript = 'execute_script'
 }
 
-export function GetActionsList(getProps: () => { state: HassEntities; client: Connection | undefined }) {
-  const actions: CompanionActions = {}
+type CompanionActionWithCallback = CompanionAction & Required<Pick<CompanionAction, 'callback'>>
 
-  const entityOnOff = (opt: CompanionActionEvent['options']) => {
+export function GetActionsList(
+  getProps: () => { state: HassEntities; client: Connection | undefined }
+): CompanionActions {
+  const entityOnOff = (opt: CompanionActionEvent['options']): void => {
     const { state, client } = getProps()
 
     const entity = state[String(opt.entity_id)]
@@ -42,29 +44,31 @@ export function GetActionsList(getProps: () => { state: HassEntities; client: Co
   }
 
   const { state: initialState } = getProps()
-  actions[ActionId.SetSwitch] = {
-    label: 'Set switch state',
-    options: [EntityPicker(initialState, 'switch'), OnOffTogglePicker()],
-    callback: evt => entityOnOff(evt.options)
-  }
-  actions[ActionId.SetLightOn] = {
-    label: 'Set light on/off state',
-    options: [EntityPicker(initialState, 'light'), OnOffTogglePicker()],
-    callback: evt => entityOnOff(evt.options)
-  }
-  actions[ActionId.ExecuteScript] = {
-    label: 'Execute script',
-    options: [EntityPicker(initialState, 'script')],
-    callback: evt => {
-      const { client } = getProps()
-      client?.sendMessage({
-        type: 'call_service',
-        domain: 'homeassistant',
-        service: 'turn_on',
-        service_data: {
-          entity_id: [evt.options.entity_id]
-        }
-      })
+  const actions: { [id in ActionId]: CompanionActionWithCallback | undefined } = {
+    [ActionId.SetSwitch]: {
+      label: 'Set switch state',
+      options: [EntityPicker(initialState, 'switch'), OnOffTogglePicker()],
+      callback: (evt): void => entityOnOff(evt.options)
+    },
+    [ActionId.SetLightOn]: {
+      label: 'Set light on/off state',
+      options: [EntityPicker(initialState, 'light'), OnOffTogglePicker()],
+      callback: (evt): void => entityOnOff(evt.options)
+    },
+    [ActionId.ExecuteScript]: {
+      label: 'Execute script',
+      options: [EntityPicker(initialState, 'script')],
+      callback: (evt): void => {
+        const { client } = getProps()
+        client?.sendMessage({
+          type: 'call_service',
+          domain: 'homeassistant',
+          service: 'turn_on',
+          service_data: {
+            entity_id: [evt.options.entity_id]
+          }
+        })
+      }
     }
   }
 

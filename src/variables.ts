@@ -3,7 +3,7 @@ import InstanceSkel = require('../../../instance_skel')
 import { CompanionVariable } from '../../../instance_skel_types'
 import { DeviceConfig } from './config'
 
-export function updateVariables(_instance: InstanceSkel<DeviceConfig>, _state: HassEntities) {
+export function updateVariables(_instance: InstanceSkel<DeviceConfig>, _state: HassEntities): void {
   // function numToString(val: number | undefined) {
   //   if (val === undefined) {
   //     return '-'
@@ -15,7 +15,7 @@ export function updateVariables(_instance: InstanceSkel<DeviceConfig>, _state: H
   // instance.setVariable('speaker_volume', numToString(state.speaker.volume))
 }
 
-export function InitVariables(instance: InstanceSkel<DeviceConfig>, state: HassEntities) {
+export function InitVariables(instance: InstanceSkel<DeviceConfig>, state: HassEntities): void {
   const variables: CompanionVariable[] = []
 
   // variables.push({
