@@ -1,18 +1,13 @@
 import { HassEntities } from 'home-assistant-js-websocket'
 import InstanceSkel = require('../../../instance_skel')
-import {
-  CompanionFeedbackEvent,
-  CompanionFeedbackResult,
-  CompanionFeedbacks,
-  CompanionInputFieldColor
-} from '../../../instance_skel_types'
+import { CompanionFeedbackEvent, CompanionFeedbacks, CompanionInputFieldColor } from '../../../instance_skel_types'
 import { EntityPicker, OnOffPicker } from './choices'
 import { DeviceConfig } from './config'
-import { assertUnreachable } from './util'
 
 export enum FeedbackId {
   SwitchState = 'switch_state',
-  LightOnState = 'light_on_state'
+  LightOnState = 'light_on_state',
+  BinarySensorState = 'binary_sensor_state'
 }
 
 export function ForegroundPicker(color: number): CompanionInputFieldColor {
@@ -32,18 +27,35 @@ export function BackgroundPicker(color: number): CompanionInputFieldColor {
   }
 }
 
-export function GetFeedbacksList(instance: InstanceSkel<DeviceConfig>, state: HassEntities) {
+export function GetFeedbacksList(instance: InstanceSkel<DeviceConfig>, getState: () => HassEntities) {
   const feedbacks: CompanionFeedbacks = {}
 
+  const getOptColors = (opt: CompanionFeedbackEvent['options']) => ({ color: Number(opt.fg), bgcolor: Number(opt.bg) })
+
+  const checkEntityOnOffState = (feedback: CompanionFeedbackEvent) => {
+    const state = getState()
+    const entity = state[String(feedback.options.entity_id)]
+    if (entity) {
+      const isOn = entity.state === 'on'
+      const targetOn = !!feedback.options.state
+      if (isOn === targetOn) {
+        return getOptColors(feedback.options)
+      }
+    }
+    return {}
+  }
+
+  const initialState = getState()
   feedbacks[FeedbackId.SwitchState] = {
     label: 'Change colors from switch state',
     description: 'If the switch state matches the rule, change colors of the bank',
     options: [
       ForegroundPicker(instance.rgb(255, 255, 255)),
       BackgroundPicker(instance.rgb(0, 255, 0)),
-      EntityPicker(state, 'switch'),
+      EntityPicker(initialState, 'switch'),
       OnOffPicker()
-    ]
+    ],
+    callback: feedback => checkEntityOnOffState(feedback)
   }
   feedbacks[FeedbackId.LightOnState] = {
     label: 'Change colors from light on state',
@@ -51,40 +63,22 @@ export function GetFeedbacksList(instance: InstanceSkel<DeviceConfig>, state: Ha
     options: [
       ForegroundPicker(instance.rgb(255, 255, 255)),
       BackgroundPicker(instance.rgb(0, 255, 0)),
-      EntityPicker(state, 'light'),
+      EntityPicker(initialState, 'light'),
       OnOffPicker()
-    ]
+    ],
+    callback: feedback => checkEntityOnOffState(feedback)
+  }
+  feedbacks[FeedbackId.BinarySensorState] = {
+    label: 'Change colors from binary sensor state',
+    description: 'If the binary sensor state matches the rule, change colors of the bank',
+    options: [
+      ForegroundPicker(instance.rgb(255, 255, 255)),
+      BackgroundPicker(instance.rgb(0, 255, 0)),
+      EntityPicker(initialState, 'binary_sensor'),
+      OnOffPicker()
+    ],
+    callback: feedback => checkEntityOnOffState(feedback)
   }
 
   return feedbacks
-}
-
-export function ExecuteFeedback(
-  instance: InstanceSkel<DeviceConfig>,
-  state: HassEntities,
-  feedback: CompanionFeedbackEvent
-): CompanionFeedbackResult {
-  const opt = feedback.options
-  const getOptColors = () => ({ color: Number(opt.fg), bgcolor: Number(opt.bg) })
-
-  const feedbackType = feedback.type as FeedbackId
-  switch (feedbackType) {
-    case FeedbackId.SwitchState:
-    case FeedbackId.LightOnState: {
-      const entity = state[String(opt.entity_id)]
-      if (entity) {
-        const isOn = entity.state === 'on'
-        const targetOn = !!opt.state
-        if (isOn === targetOn) {
-          return getOptColors()
-        }
-      }
-      break
-    }
-    default:
-      assertUnreachable(feedbackType)
-      instance.debug('Unknown action: ' + feedback.type)
-  }
-
-  return {}
 }

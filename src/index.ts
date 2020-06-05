@@ -8,15 +8,10 @@ import {
 } from 'home-assistant-js-websocket'
 import { isNumber } from 'util'
 import InstanceSkel = require('../../../instance_skel')
-import {
-  CompanionConfigField,
-  CompanionFeedbackEvent,
-  CompanionFeedbackResult,
-  CompanionSystem
-} from '../../../instance_skel_types'
+import { CompanionConfigField, CompanionSystem } from '../../../instance_skel_types'
 import { GetActionsList } from './actions'
 import { DeviceConfig, GetConfigFields } from './config'
-import { ExecuteFeedback, FeedbackId, GetFeedbacksList } from './feedback'
+import { FeedbackId, GetFeedbacksList } from './feedback'
 import { createSocket, hassErrorToString } from './hass-socket'
 import { GetPresetsList } from './presets'
 import { InitVariables, updateVariables } from './variables'
@@ -58,7 +53,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 
     InitVariables(this, this.state)
     this.setPresetDefinitions(GetPresetsList(this, this.state))
-    this.setFeedbackDefinitions(GetFeedbacksList(this, this.state))
+    this.setFeedbackDefinitions(GetFeedbacksList(this, () => this.state))
     this.setActions(GetActionsList(() => ({ state: this.state, client: this.client })))
 
     this.checkFeedbacks()
@@ -129,13 +124,6 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 
     this.debug('destroy', this.id)
     this.status(this.STATUS_UNKNOWN)
-  }
-
-  /**
-   * Processes a feedback state.
-   */
-  public feedback(feedback: CompanionFeedbackEvent): CompanionFeedbackResult {
-    return ExecuteFeedback(this, this.state, feedback)
   }
 
   private tryConnect() {
@@ -213,7 +201,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 
     if (entitiesChanged) {
       this.setPresetDefinitions(GetPresetsList(this, this.state))
-      this.setFeedbackDefinitions(GetFeedbacksList(this, this.state))
+      this.setFeedbackDefinitions(GetFeedbacksList(this, () => this.state))
       this.setActions(GetActionsList(() => ({ state: this.state, client: this.client })))
     }
 
