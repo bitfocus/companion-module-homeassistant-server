@@ -9,13 +9,12 @@ import {
 import { isNumber } from 'util'
 import InstanceSkel = require('../../../instance_skel')
 import {
-  CompanionActionEvent,
   CompanionConfigField,
   CompanionFeedbackEvent,
   CompanionFeedbackResult,
   CompanionSystem
 } from '../../../instance_skel_types'
-import { GetActionsList, HandleAction } from './actions'
+import { GetActionsList } from './actions'
 import { DeviceConfig, GetConfigFields } from './config'
 import { ExecuteFeedback, FeedbackId, GetFeedbacksList } from './feedback'
 import { createSocket, hassErrorToString } from './hass-socket'
@@ -60,7 +59,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
     InitVariables(this, this.state)
     this.setPresetDefinitions(GetPresetsList(this, this.state))
     this.setFeedbackDefinitions(GetFeedbacksList(this, this.state))
-    this.setActions(GetActionsList(this.state))
+    this.setActions(GetActionsList(() => ({ state: this.state, client: this.client })))
 
     this.checkFeedbacks()
   }
@@ -98,15 +97,6 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 
   public upgradeConfig() {
     // Nothing to do
-  }
-
-  /**
-   * Executes the provided action.
-   */
-  public action(action: CompanionActionEvent) {
-    if (this.client) {
-      HandleAction(this, this.client, this.state, action)
-    }
   }
 
   /**
@@ -224,7 +214,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
     if (entitiesChanged) {
       this.setPresetDefinitions(GetPresetsList(this, this.state))
       this.setFeedbackDefinitions(GetFeedbacksList(this, this.state))
-      this.setActions(GetActionsList(this.state))
+      this.setActions(GetActionsList(() => ({ state: this.state, client: this.client })))
     }
 
     this.checkFeedbacks()
