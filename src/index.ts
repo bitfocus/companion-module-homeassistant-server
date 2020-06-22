@@ -195,8 +195,6 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
   private processStateChange(newState: HassEntities): void {
     const entitiesChanged = getStateInfoString(this.state) !== getStateInfoString(newState)
 
-    console.log(newState)
-
     this.state = newState
     this.initDone = true
 
