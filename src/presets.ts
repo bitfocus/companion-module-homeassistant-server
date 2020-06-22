@@ -30,7 +30,7 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
       label: `Switch ${ent.label}`,
       bank: {
         style: 'text',
-        text: ent.label,
+        text: `$(homeassistant-server:entity.${ent.id})`,
         size: 'auto',
         color: instance.rgb(255, 255, 255),
         bgcolor: instance.rgb(0, 0, 0)
@@ -64,7 +64,7 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
       label: `Light ${ent.label}`,
       bank: {
         style: 'text',
-        text: ent.label,
+        text: `$(homeassistant-server:entity.${ent.id})`,
         size: 'auto',
         color: instance.rgb(255, 255, 255),
         bgcolor: instance.rgb(0, 0, 0)
