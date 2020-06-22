@@ -56,6 +56,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
     this.setPresetDefinitions(GetPresetsList(this, this.state))
     this.setFeedbackDefinitions(GetFeedbacksList(this, () => this.state))
     this.setActions(GetActionsList(() => ({ state: this.state, client: this.client })))
+    updateVariables(this, this.state)
 
     this.checkFeedbacks()
   }
@@ -192,22 +193,37 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
    * Handle state changes
    */
   private processStateChange(newState: HassEntities): void {
-    const entitiesChanged =
-      JSON.stringify(Object.keys(this.state).sort()) !== JSON.stringify(Object.keys(newState).sort())
+    const entitiesChanged = getStateInfoString(this.state) !== getStateInfoString(newState)
+
+    console.log(newState)
 
     this.state = newState
     this.initDone = true
-
-    updateVariables(this, this.state)
 
     if (entitiesChanged) {
       this.setPresetDefinitions(GetPresetsList(this, this.state))
       this.setFeedbackDefinitions(GetFeedbacksList(this, () => this.state))
       this.setActions(GetActionsList(() => ({ state: this.state, client: this.client })))
+      InitVariables(this, this.state)
     }
+
+    updateVariables(this, this.state)
 
     this.checkFeedbacks()
   }
+}
+
+function getStateInfoString(state: HassEntities): string {
+  return JSON.stringify(
+    Object.values(state)
+      .map(v =>
+        JSON.stringify({
+          entity_id: v.entity_id,
+          friendly_name: v.attributes.friendly_name
+        })
+      )
+      .sort()
+  )
 }
 
 export = ControllerInstance
