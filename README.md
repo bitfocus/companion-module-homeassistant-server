@@ -10,6 +10,10 @@ While developing the module, by using `yarn build:watch` the compiler will be ru
 
 ## Changes
 
+### v0.3.1
+
+- Use variables for preset labels
+
 ### v0.3.0
 
 - Add variables for entity names
