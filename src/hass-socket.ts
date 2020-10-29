@@ -8,13 +8,8 @@ https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/so
 */
 
 import * as ha from 'home-assistant-js-websocket'
-import { HaWebSocket } from 'home-assistant-js-websocket/dist/socket'
 import * as WebSocket from 'ws'
 import InstanceSkel = require('../../../instance_skel')
-
-const MSG_TYPE_AUTH_REQUIRED = 'auth_required'
-const MSG_TYPE_AUTH_INVALID = 'auth_invalid'
-const MSG_TYPE_AUTH_OK = 'auth_ok'
 
 export function hassErrorToString(e: number): string {
   switch (e) {
@@ -35,7 +30,7 @@ export function createSocket(
   auth: ha.Auth,
   ignoreCertificates: boolean,
   instance: InstanceSkel<unknown> & { needsReconnect: boolean }
-): Promise<HaWebSocket> {
+): Promise<ha.HaWebSocket> {
   // Convert from http:// -> ws://, https:// -> wss://
   const url = auth.wsUrl
 
@@ -43,7 +38,7 @@ export function createSocket(
 
   function connect(
     triesLeft: number,
-    promResolve: (socket: HaWebSocket) => void,
+    promResolve: (socket: ha.HaWebSocket) => void,
     promReject: (err: number) => void
   ): void {
     if (instance.needsReconnect) {
@@ -129,18 +124,18 @@ export function createSocket(
       instance.debug(`[Auth phase] Received a message of type ${message.type}`, message)
 
       switch (message.type) {
-        case MSG_TYPE_AUTH_INVALID:
+        case ha.MSG_TYPE_AUTH_INVALID:
           invalidAuth = true
           socket.close()
           break
 
-        case MSG_TYPE_AUTH_OK: {
+        case ha.MSG_TYPE_AUTH_OK: {
           socket.removeEventListener('open', handleOpen)
           socket.removeEventListener('message', handleMessage)
           socket.removeEventListener('close', closeMessage)
           socket.removeEventListener('error', errorMessage)
 
-          const socket2 = (socket as unknown) as HaWebSocket
+          const socket2 = (socket as unknown) as ha.HaWebSocket
           socket2.haVersion = message.ha_version
           promResolve(socket2)
           break
@@ -148,7 +143,7 @@ export function createSocket(
 
         default:
           // We already send this message when socket opens
-          if (message.type !== MSG_TYPE_AUTH_REQUIRED) {
+          if (message.type !== ha.MSG_TYPE_AUTH_REQUIRED) {
             instance.debug('[Auth phase] Unhandled message', message)
           }
       }

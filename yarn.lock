@@ -881,10 +881,10 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-home-assistant-js-websocket@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/home-assistant-js-websocket/-/home-assistant-js-websocket-4.5.0.tgz#e1cbdd6c279f25839986ffc8368e8c2d533ee0ff"
-  integrity sha512-ig+zws1MW14XwjMtXRzDBxDZVwvEaluTA9Pq4wqRebKo0Hw7yVix2GFn0wzG75eqC3mc0BlJQiXqBeWhJuJ0pQ==
+home-assistant-js-websocket@^5.7.0:
+  version "5.7.0"
+  resolved "https://registry.yarnpkg.com/home-assistant-js-websocket/-/home-assistant-js-websocket-5.7.0.tgz#01980b7fcd49a10ae5ce486b9adcf26fee08bd13"
+  integrity sha512-93qmVWpKiI1UZh0mNtFmwDJ8XLgl3epwQMNL+R5qI9lFBdC8djWZ3NiVZ9Vdwfq4T7NWZYYWxL/kkUV7xvf+yA==
 
 hosted-git-info@^2.1.4:
   version "2.8.8"
