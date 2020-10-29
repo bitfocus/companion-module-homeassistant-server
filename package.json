@@ -33,20 +33,23 @@
 	},
 	"dependencies": {
 		"home-assistant-js-websocket": "^4.5.0",
-		"ws": "^7.2.0"
+		"ws": "^7.3.1"
 	},
 	"devDependencies": {
-		"@types/node": "^12.0.4",
-		"@types/ws": "^7.2.0",
+		"@types/node": "^12.19.3",
+		"@types/ws": "^7.2.9",
 		"@typescript-eslint/eslint-plugin": "~2.31.0",
 		"@typescript-eslint/parser": "~2.31.0",
 		"eslint": "^6.8.0",
-		"eslint-config-prettier": "^6.11.0",
+		"eslint-config-prettier": "^6.15.0",
 		"eslint-plugin-prettier": "^3.1.3",
 		"husky": "^3.0.5",
 		"lint-staged": "^9.2.5",
 		"prettier": "^1.17.1",
 		"trash-cli": "^3.0.0",
-		"typescript": "^3.7.2"
+		"typescript": "^4.0.5"
+	},
+	"resolutions": {
+		"eslint/inquirer": "~7.2.0"
 	}
 }
