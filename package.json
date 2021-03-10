@@ -33,11 +33,11 @@
 	},
 	"dependencies": {
 		"@types/node": "^12.19.3",
+		"@types/ws": "^7.2.9",
 		"home-assistant-js-websocket": "^5.7.0",
 		"ws": "^7.3.1"
 	},
 	"devDependencies": {
-		"@types/ws": "^7.2.9",
 		"@typescript-eslint/eslint-plugin": "~2.31.0",
 		"@typescript-eslint/parser": "~2.31.0",
 		"eslint": "^6.8.0",
