@@ -5,6 +5,7 @@ import { OnOffToggle } from './util'
 
 export enum ActionId {
   SetSwitch = 'set_switch',
+  SetInputBoolean = 'set_input_boolean',
   SetLightOn = 'set_light_on',
   ExecuteScript = 'execute_script'
 }
@@ -48,6 +49,11 @@ export function GetActionsList(
     [ActionId.SetSwitch]: {
       label: 'Set switch state',
       options: [EntityPicker(initialState, 'switch'), OnOffTogglePicker()],
+      callback: (evt): void => entityOnOff(evt.options)
+    },
+    [ActionId.SetInputBoolean]: {
+      label: 'Set input_boolean state',
+      options: [EntityPicker(initialState, 'input_boolean'), OnOffTogglePicker()],
       callback: (evt): void => entityOnOff(evt.options)
     },
     [ActionId.SetLightOn]: {

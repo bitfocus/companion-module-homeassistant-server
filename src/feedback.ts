@@ -12,6 +12,7 @@ import { DeviceConfig } from './config'
 
 export enum FeedbackId {
   SwitchState = 'switch_state',
+  InputBooleanState = 'input_boolean_state',
   LightOnState = 'light_on_state',
   BinarySensorState = 'binary_sensor_state'
 }
@@ -66,6 +67,17 @@ export function GetFeedbacksList(
         ForegroundPicker(instance.rgb(255, 255, 255)),
         BackgroundPicker(instance.rgb(0, 255, 0)),
         EntityPicker(initialState, 'switch'),
+        OnOffPicker()
+      ],
+      callback: (feedback): CompanionFeedbackResult => checkEntityOnOffState(feedback)
+    },
+    [FeedbackId.InputBooleanState]: {
+      label: 'Change colors from input_boolean state',
+      description: 'If the input_boolean state matches the rule, change colors of the bank',
+      options: [
+        ForegroundPicker(instance.rgb(255, 255, 255)),
+        BackgroundPicker(instance.rgb(0, 255, 0)),
+        EntityPicker(initialState, 'input_boolean'),
         OnOffPicker()
       ],
       callback: (feedback): CompanionFeedbackResult => checkEntityOnOffState(feedback)
