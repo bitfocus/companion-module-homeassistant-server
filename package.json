@@ -40,10 +40,10 @@
 		"node": "^12.14 || 14"
 	},
 	"dependencies": {
-		"@types/node": "^12.19.3",
-		"@types/ws": "^7.2.9",
-		"home-assistant-js-websocket": "^5.7.0",
-		"ws": "^7.3.1"
+		"@types/node": "^12.20.12",
+		"@types/ws": "^7.4.2",
+		"home-assistant-js-websocket": "^5.9.0",
+		"ws": "^7.4.5"
 	},
 	"devDependencies": {
 		"@sofie-automation/code-standard-preset": "^0.2.5",
