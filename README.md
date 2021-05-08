@@ -10,6 +10,10 @@ While developing the module, by using `yarn build:watch` the compiler will be ru
 
 ## Changes
 
+### v0.4.0
+
+- Support input_boolean entities
+
 ### v0.3.1
 
 - Use variables for preset labels
