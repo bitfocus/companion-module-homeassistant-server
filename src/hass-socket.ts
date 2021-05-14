@@ -135,7 +135,7 @@ export function createSocket(
 					socket.removeEventListener('close', closeMessage)
 					socket.removeEventListener('error', errorMessage)
 
-					const socket2 = (socket as unknown) as ha.HaWebSocket
+					const socket2 = socket as unknown as ha.HaWebSocket
 					socket2.haVersion = message.ha_version
 					promResolve(socket2)
 					break

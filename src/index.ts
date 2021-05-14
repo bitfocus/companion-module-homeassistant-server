@@ -134,11 +134,11 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 
 		this.needsReconnect = false
 
-		const auth = new Auth(({
+		const auth = new Auth({
 			access_token: this.config.access_token || '',
 			expires: Date.now() + 1e11,
 			hassUrl: this.config.url || '',
-		} as unknown) as AuthData)
+		} as unknown as AuthData)
 
 		this.connecting = true
 		createConnection({

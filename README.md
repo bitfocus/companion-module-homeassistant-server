@@ -10,6 +10,10 @@ While developing the module, by using `yarn build:watch` the compiler will be ru
 
 ## Changes
 
+### v0.5.0
+
+- feedbacks updated to new format. allows more customisation of style
+
 ### v0.4.0
 
 - Support input_boolean entities
