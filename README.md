@@ -10,6 +10,10 @@ While developing the module, by using `yarn build:watch` the compiler will be ru
 
 ## Changes
 
+### v0.5.2
+
+- Migration script not running
+
 ### v0.5.1
 
 - Missing boolean feedback migration script

@@ -36,6 +36,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		this.initDone = false
 		this.needsReconnect = false
 
+		console.log('conf', (config as any)._configIdx)
 		this.addUpgradeToBooleanFeedbackScript(BooleanFeedbackUpgradeMap)
 	}
 
@@ -92,10 +93,6 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		this.checkFeedbacks()
 
 		this.tryConnect()
-	}
-
-	public upgradeConfig(): void {
-		// Nothing to do
 	}
 
 	/**
