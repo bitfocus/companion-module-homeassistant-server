@@ -1,4 +1,5 @@
 import { HassEntities } from 'home-assistant-js-websocket'
+import { SetRequired } from 'type-fest'
 import InstanceSkel = require('../../../instance_skel')
 import { CompanionPreset } from '../../../instance_skel_types'
 import { ActionId } from './actions'
@@ -11,7 +12,7 @@ interface CompanionPresetExt extends CompanionPreset {
 	feedbacks: Array<
 		{
 			type: FeedbackId
-		} & CompanionPreset['feedbacks'][0]
+		} & SetRequired<CompanionPreset['feedbacks'][0], 'style'>
 	>
 	actions: Array<
 		{
@@ -39,10 +40,12 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 				{
 					type: FeedbackId.SwitchState,
 					options: {
-						bg: instance.rgb(0, 255, 0),
-						fg: instance.rgb(255, 255, 255),
 						entity_id: ent.id,
 						state: true,
+					},
+					style: {
+						bgcolor: instance.rgb(0, 255, 0),
+						color: instance.rgb(255, 255, 255),
 					},
 				},
 			],
@@ -74,10 +77,12 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 				{
 					type: FeedbackId.InputBooleanState,
 					options: {
-						bg: instance.rgb(0, 255, 0),
-						fg: instance.rgb(255, 255, 255),
 						entity_id: ent.id,
 						state: true,
+					},
+					style: {
+						bgcolor: instance.rgb(0, 255, 0),
+						color: instance.rgb(255, 255, 255),
 					},
 				},
 			],
@@ -109,10 +114,12 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 				{
 					type: FeedbackId.LightOnState,
 					options: {
-						bg: instance.rgb(0, 255, 0),
-						fg: instance.rgb(255, 255, 255),
 						entity_id: ent.id,
 						state: true,
+					},
+					style: {
+						bgcolor: instance.rgb(0, 255, 0),
+						color: instance.rgb(255, 255, 255),
 					},
 				},
 			],
