@@ -13,6 +13,7 @@ import { GetActionsList } from './actions'
 import { DeviceConfig, GetConfigFields } from './config'
 import { FeedbackId, GetFeedbacksList } from './feedback'
 import { createSocket, hassErrorToString } from './hass-socket'
+import { BooleanFeedbackUpgradeMap } from './migrations'
 import { GetPresetsList } from './presets'
 import { InitVariables, updateVariables } from './variables'
 
@@ -34,6 +35,8 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		this.state = {}
 		this.initDone = false
 		this.needsReconnect = false
+
+		this.addUpgradeToBooleanFeedbackScript(BooleanFeedbackUpgradeMap)
 	}
 
 	// Override base types to make types stricter
