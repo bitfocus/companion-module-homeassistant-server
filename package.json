@@ -1,6 +1,6 @@
 {
 	"name": "homeassistant-server",
-	"version": "0.5.2",
+	"version": "0.6.0",
 	"api_version": "1.0.0",
 	"description": "Home Assistant Server",
 	"keywords": [
