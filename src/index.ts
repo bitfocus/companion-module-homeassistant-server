@@ -41,9 +41,9 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 	}
 
 	// Override base types to make types stricter
-	public checkFeedbacks(feedbackId?: FeedbackId, ignoreInitDone?: boolean): void {
-		if (ignoreInitDone || this.initDone) {
-			super.checkFeedbacks(feedbackId)
+	public checkFeedbacks(...feedbackTypes: FeedbackId[]): void {
+		if (this.initDone) {
+			super.checkFeedbacks(...feedbackTypes)
 		}
 	}
 
