@@ -4,9 +4,12 @@ import { CompanionVariable } from '../../../instance_skel_types'
 import { DeviceConfig } from './config'
 
 export function updateVariables(instance: InstanceSkel<DeviceConfig>, state: HassEntities): void {
+	const variables: { [variableId: string]: string | undefined } = {}
 	for (const entity of Object.values(state)) {
-		instance.setVariable(`entity.${entity.entity_id}`, entity.attributes.friendly_name ?? entity.entity_id)
+		variables[`entity.${entity.entity_id}`] = entity.attributes.friendly_name ?? entity.entity_id
 	}
+
+	instance.setVariables(variables)
 }
 
 export function InitVariables(instance: InstanceSkel<DeviceConfig>, state: HassEntities): void {

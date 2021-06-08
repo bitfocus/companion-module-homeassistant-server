@@ -8,12 +8,12 @@ import {
 	AuthData,
 } from 'home-assistant-js-websocket'
 import InstanceSkel = require('../../../instance_skel')
-import { CompanionConfigField, CompanionSystem } from '../../../instance_skel_types'
+import { CompanionConfigField, CompanionStaticUpgradeScript, CompanionSystem } from '../../../instance_skel_types'
 import { GetActionsList } from './actions'
 import { DeviceConfig, GetConfigFields } from './config'
 import { FeedbackId, GetFeedbacksList } from './feedback'
 import { createSocket, hassErrorToString } from './hass-socket'
-import { BooleanFeedbackUpgradeMap } from './migrations'
+import { BooleanFeedbackUpgradeMap } from './upgrades'
 import { GetPresetsList } from './presets'
 import { InitVariables, updateVariables } from './variables'
 
@@ -35,9 +35,10 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		this.state = {}
 		this.initDone = false
 		this.needsReconnect = false
+	}
 
-		console.log('conf', (config as any)._configIdx)
-		this.addUpgradeToBooleanFeedbackScript(BooleanFeedbackUpgradeMap)
+	static GetUpgradeScripts(): CompanionStaticUpgradeScript[] {
+		return [ControllerInstance.CreateConvertToBooleanFeedbackUpgradeScript(BooleanFeedbackUpgradeMap)]
 	}
 
 	// Override base types to make types stricter
