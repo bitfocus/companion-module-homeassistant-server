@@ -10,6 +10,10 @@ While developing the module, by using `yarn build:watch` the compiler will be ru
 
 ## Changes
 
+### v0.6.1
+
+- Update for improved module api features
+
 ### v0.6.0
 
 - Update for improved instance_skel.checkFeedbacks signature
