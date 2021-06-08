@@ -37,7 +37,7 @@ export function GetFeedbacksList(
 			description: 'If the switch state matches the rule, change style of the bank',
 			options: [EntityPicker(initialState, 'switch'), OnOffPicker()],
 			style: {
-				color: instance.rgb(255, 255, 255),
+				color: instance.rgb(0, 0, 0),
 				bgcolor: instance.rgb(0, 255, 0),
 			},
 			callback: (feedback): boolean => checkEntityOnOffState(feedback),
@@ -48,7 +48,7 @@ export function GetFeedbacksList(
 			description: 'If the input_boolean state matches the rule, change style of the bank',
 			options: [EntityPicker(initialState, 'input_boolean'), OnOffPicker()],
 			style: {
-				color: instance.rgb(255, 255, 255),
+				color: instance.rgb(0, 0, 0),
 				bgcolor: instance.rgb(0, 255, 0),
 			},
 			callback: (feedback): boolean => checkEntityOnOffState(feedback),
@@ -59,7 +59,7 @@ export function GetFeedbacksList(
 			description: 'If the light state matches the rule, change style of the bank',
 			options: [EntityPicker(initialState, 'light'), OnOffPicker()],
 			style: {
-				color: instance.rgb(255, 255, 255),
+				color: instance.rgb(0, 0, 0),
 				bgcolor: instance.rgb(0, 255, 0),
 			},
 			callback: (feedback): boolean => checkEntityOnOffState(feedback),
@@ -70,7 +70,7 @@ export function GetFeedbacksList(
 			description: 'If the binary sensor state matches the rule, change style of the bank',
 			options: [EntityPicker(initialState, 'binary_sensor'), OnOffPicker()],
 			style: {
-				color: instance.rgb(255, 255, 255),
+				color: instance.rgb(0, 0, 0),
 				bgcolor: instance.rgb(0, 255, 0),
 			},
 			callback: (feedback): boolean => checkEntityOnOffState(feedback),

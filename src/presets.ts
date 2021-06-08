@@ -45,7 +45,7 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 					},
 					style: {
 						bgcolor: instance.rgb(0, 255, 0),
-						color: instance.rgb(255, 255, 255),
+						color: instance.rgb(0, 0, 0),
 					},
 				},
 			],
@@ -82,7 +82,7 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 					},
 					style: {
 						bgcolor: instance.rgb(0, 255, 0),
-						color: instance.rgb(255, 255, 255),
+						color: instance.rgb(0, 0, 0),
 					},
 				},
 			],
@@ -119,7 +119,7 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 					},
 					style: {
 						bgcolor: instance.rgb(0, 255, 0),
-						color: instance.rgb(255, 255, 255),
+						color: instance.rgb(0, 0, 0),
 					},
 				},
 			],
