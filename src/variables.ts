@@ -8,6 +8,11 @@ export function updateVariables(instance: InstanceSkel<DeviceConfig>, state: Has
 	for (const entity of Object.values(state)) {
 		variables[`entity.${entity.entity_id}.value`] = entity.state
 		variables[`entity.${entity.entity_id}`] = entity.attributes.friendly_name ?? entity.entity_id
+		if (entity.entity_id.indexOf('light.') != -1) {
+			variables[`entity.${entity.entity_id}.brightness`] = String(
+				Math.round((100 * (entity.attributes.brightness ?? 0)) / 256)
+			)
+		}
 	}
 
 	instance.setVariables(variables)
@@ -25,6 +30,12 @@ export function InitVariables(instance: InstanceSkel<DeviceConfig>, state: HassE
 			label: `Entity Name: ${entity.attributes.friendly_name ?? entity.entity_id}`,
 			name: `entity.${entity.entity_id}`,
 		})
+		if (entity.entity_id.indexOf('light.') != -1) {
+			variables.push({
+				label: `${entity.attributes.friendly_name ?? entity.entity_id} brightness`,
+				name: `entity.${entity.entity_id}.brightness`,
+			})
+		}
 	}
 	instance.setVariableDefinitions(variables)
 }
