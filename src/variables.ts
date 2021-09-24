@@ -7,7 +7,7 @@ export function updateVariables(instance: InstanceSkel<DeviceConfig>, state: Has
 	const variables: { [variableId: string]: string | undefined } = {}
 	for (const entity of Object.values(state)) {
 		variables[`entity.${entity.entity_id}.value`] = entity.state;
-		variables[`entity.${entity.entity_id}.name`] = entity.attributes.friendly_name ?? entity.entity_id;
+		variables[`entity.${entity.entity_id}`] = entity.attributes.friendly_name ?? entity.entity_id;
 	}
 
 	instance.setVariables(variables)
@@ -23,7 +23,7 @@ export function InitVariables(instance: InstanceSkel<DeviceConfig>, state: HassE
 		});
 		variables.push({
 			label: `Entity: ${entity.attributes.friendly_name ?? entity.entity_id}`,
-			name: `entity.${entity.entity_id}.name`,
+			name: `entity.${entity.entity_id}`,
 		});
 	}
 	instance.setVariableDefinitions(variables)
