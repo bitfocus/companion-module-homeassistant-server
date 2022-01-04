@@ -183,5 +183,29 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 		})
 	})
 
+	const scenePicker = EntityPicker(state, 'scene')
+	scenePicker.choices.forEach((ent) => {
+		presets.push({
+			category: 'Scene',
+			label: `Scene ${ent.label}`,
+			bank: {
+				style: 'text',
+				text: `$(homeassistant-server:entity.${ent.id})`,
+				size: 'auto',
+				color: instance.rgb(255, 255, 255),
+				bgcolor: instance.rgb(0, 0, 0),
+			},
+			feedbacks: [],
+			actions: [
+				{
+					action: ActionId.ActivateScene,
+					options: {
+						entity_id: ent.id,
+					},
+				},
+			],
+		})
+	})
+
 	return presets
 }

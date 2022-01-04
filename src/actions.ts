@@ -11,6 +11,7 @@ export enum ActionId {
 	AdjLightPercent = 'adj_light_pct',
 	ExecuteScript = 'execute_script',
 	PressButton = 'press_button',
+	ActivateScene = 'activate_scene',
 }
 
 type CompanionActionWithCallback = CompanionAction & Required<Pick<CompanionAction, 'callback'>>
@@ -149,6 +150,22 @@ export function GetActionsList(
 					service: 'press',
 					service_data: {
 						entity_id: [evt.options.entity_id],
+					},
+				})
+			},
+		},
+		[ActionId.ActivateScene]: {
+			label: 'Activate scene',
+			options: [EntityPicker(initialState, 'scene')],
+			callback: (evt): void => {
+				const { client } = getProps()
+
+				client?.sendMessage({
+					type: 'call_service',
+					domain: 'scene',
+					service: 'turn_on',
+					service_data: {
+						entity_id: evt.options.entity_id,
 					},
 				})
 			},
