@@ -135,5 +135,53 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 		})
 	})
 
+	const scriptPicker = EntityPicker(state, 'script')
+	scriptPicker.choices.forEach((ent) => {
+		presets.push({
+			category: 'Script',
+			label: `Script ${ent.label}`,
+			bank: {
+				style: 'text',
+				text: `$(homeassistant-server:entity.${ent.id})`,
+				size: 'auto',
+				color: instance.rgb(255, 255, 255),
+				bgcolor: instance.rgb(0, 0, 0),
+			},
+			feedbacks: [],
+			actions: [
+				{
+					action: ActionId.ExecuteScript,
+					options: {
+						entity_id: ent.id,
+					},
+				},
+			],
+		})
+	})
+
+	const buttonPicker = EntityPicker(state, 'button')
+	buttonPicker.choices.forEach((ent) => {
+		presets.push({
+			category: 'Button',
+			label: `Button ${ent.label}`,
+			bank: {
+				style: 'text',
+				text: `$(homeassistant-server:entity.${ent.id})`,
+				size: 'auto',
+				color: instance.rgb(255, 255, 255),
+				bgcolor: instance.rgb(0, 0, 0),
+			},
+			feedbacks: [],
+			actions: [
+				{
+					action: ActionId.PressButton,
+					options: {
+						entity_id: ent.id,
+					},
+				},
+			],
+		})
+	})
+
 	return presets
 }

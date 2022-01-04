@@ -8,6 +8,7 @@ export enum ActionId {
 	SetInputBoolean = 'set_input_boolean',
 	SetLightOn = 'set_light_on',
 	ExecuteScript = 'execute_script',
+	PressButton = 'press_button',
 }
 
 type CompanionActionWithCallback = CompanionAction & Required<Pick<CompanionAction, 'callback'>>
@@ -70,6 +71,21 @@ export function GetActionsList(
 					type: 'call_service',
 					domain: 'homeassistant',
 					service: 'turn_on',
+					service_data: {
+						entity_id: [evt.options.entity_id],
+					},
+				})
+			},
+		},
+		[ActionId.PressButton]: {
+			label: 'Press button',
+			options: [EntityPicker(initialState, 'button')],
+			callback: (evt): void => {
+				const { client } = getProps()
+				client?.sendMessage({
+					type: 'call_service',
+					domain: 'button',
+					service: 'press',
 					service_data: {
 						entity_id: [evt.options.entity_id],
 					},
