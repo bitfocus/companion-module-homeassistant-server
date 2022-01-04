@@ -24,8 +24,7 @@ interface CompanionPresetExt extends CompanionPreset {
 export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: HassEntities): CompanionPreset[] {
 	const presets: CompanionPresetExt[] = []
 
-	const switchPicker = EntityPicker(state, 'switch')
-	switchPicker.choices.forEach((ent) => {
+	for (const ent of EntityPicker(state, 'switch').choices) {
 		presets.push({
 			category: 'Switch',
 			label: `Switch ${ent.label}`,
@@ -59,10 +58,9 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 				},
 			],
 		})
-	})
+	}
 
-	const inputBooleanPicker = EntityPicker(state, 'input_boolean')
-	inputBooleanPicker.choices.forEach((ent) => {
+	for (const ent of EntityPicker(state, 'input_boolean').choices) {
 		presets.push({
 			category: 'Input Boolean',
 			label: `Input Boolean ${ent.label}`,
@@ -96,10 +94,9 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 				},
 			],
 		})
-	})
+	}
 
-	const lightPicker = EntityPicker(state, 'light')
-	lightPicker.choices.forEach((ent) => {
+	for (const ent of EntityPicker(state, 'light').choices) {
 		presets.push({
 			category: 'Light',
 			label: `Light ${ent.label}`,
@@ -133,10 +130,9 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 				},
 			],
 		})
-	})
+	}
 
-	const scriptPicker = EntityPicker(state, 'script')
-	scriptPicker.choices.forEach((ent) => {
+	for (const ent of EntityPicker(state, 'script').choices) {
 		presets.push({
 			category: 'Script',
 			label: `Script ${ent.label}`,
@@ -157,10 +153,9 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 				},
 			],
 		})
-	})
+	}
 
-	const buttonPicker = EntityPicker(state, 'button')
-	buttonPicker.choices.forEach((ent) => {
+	for (const ent of EntityPicker(state, 'button').choices) {
 		presets.push({
 			category: 'Button',
 			label: `Button ${ent.label}`,
@@ -181,10 +176,9 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 				},
 			],
 		})
-	})
+	}
 
-	const scenePicker = EntityPicker(state, 'scene')
-	scenePicker.choices.forEach((ent) => {
+	for (const ent of EntityPicker(state, 'scene').choices) {
 		presets.push({
 			category: 'Scene',
 			label: `Scene ${ent.label}`,
@@ -205,7 +199,7 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 				},
 			],
 		})
-	})
+	}
 
 	return presets
 }
