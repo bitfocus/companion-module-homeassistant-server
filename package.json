@@ -12,10 +12,12 @@
 	"homepage": "https://github.com/bitfocus/companion-module-homeassistant-server#readme",
 	"main": "dist/index.js",
 	"scripts": {
+		"prepare": "husky install",
 		"build": "npx rimraf dist && npx typescript@~4.2 -p tsconfig.build.json",
 		"build:main": "tsc -p tsconfig.build.json",
 		"build:watch": "tsc -p tsconfig.build.json --watch",
-		"lint": "eslint . --ext .ts --ext .js --ignore-pattern dist",
+		"lint:raw": "eslint --ext .ts --ext .js --ignore-pattern dist",
+		"lint": "yarn lint:raw .",
 		"lint-fix": "yarn lint --fix",
 		"license-validate": "yarn sofie-licensecheck",
 		"postinstall": "yarn build"
@@ -23,31 +25,26 @@
 	"author": "Julian Waller <git@julusian.co.uk>",
 	"license": "MIT",
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
-	"husky": {
-		"hooks": {
-			"pre-commit": "lint-staged"
-		}
-	},
 	"lint-staged": {
 		"*.{css,json,md,scss}": [
 			"prettier --write"
 		],
 		"*.{ts,tsx,js,jsx}": [
-			"yarn lint-fix"
+			"yarn lint:raw --fix"
 		]
 	},
 	"engines": {
-		"node": "^12.14 || 14"
+		"node": "^14"
 	},
 	"dependencies": {
-		"@types/node": "^12.20.13",
-		"@types/ws": "^7.4.4",
-		"home-assistant-js-websocket": "^5.10.0",
-		"type-fest": "^1.1.3",
-		"ws": "^7.4.6"
+		"@types/node": "^14.18.3",
+		"@types/ws": "^7.4.7",
+		"home-assistant-js-websocket": "^6.0.1",
+		"type-fest": "^2.8.0",
+		"ws": "^7.5.6"
 	},
 	"devDependencies": {
-		"@sofie-automation/code-standard-preset": "^0.4.1",
+		"@sofie-automation/code-standard-preset": "^0.5.1",
 		"typescript": "~4.2"
 	}
 }
