@@ -10,6 +10,12 @@ While developing the module, by using `yarn build:watch` the compiler will be ru
 
 ## Changes
 
+### v0.7.0
+
+- Support scene and button entities
+- Add actions to change light brightness
+- More variables for entities
+
 ### v0.6.1
 
 - Update for improved module api features
