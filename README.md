@@ -10,6 +10,12 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### v0.8.0
+
+- Support group, input_select entities
+- All actions support multiple entities
+- Call any service with custom payload
+
 ### v0.7.0
 
 - Support scene and button entities
