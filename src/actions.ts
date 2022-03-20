@@ -12,6 +12,11 @@ export enum ActionId {
 	ExecuteScript = 'execute_script',
 	PressButton = 'press_button',
 	ActivateScene = 'activate_scene',
+	InputSelectFirst = 'input_select_first',
+	InputSelectLast = 'input_select_last',
+	InputSelectNext = 'input_select_next',
+	InputSelectPrevious = 'input_select_previous',
+	InputSelectSet = 'input_select_set',
 }
 
 type CompanionActionWithCallback = CompanionAction & Required<Pick<CompanionAction, 'callback'>>
@@ -166,6 +171,95 @@ export function GetActionsList(
 					service: 'turn_on',
 					service_data: {
 						entity_id: evt.options.entity_id,
+					},
+				})
+			},
+		},
+		[ActionId.InputSelectFirst]: {
+			label: 'Input Select: First',
+			options: [EntityPicker(initialState, 'input_select')],
+			callback: (evt): void => {
+				const { client } = getProps()
+
+				client?.sendMessage({
+					type: 'call_service',
+					domain: 'input_select',
+					service: 'select_first',
+					service_data: {
+						entity_id: evt.options.entity_id,
+					},
+				})
+			},
+		},
+		[ActionId.InputSelectLast]: {
+			label: 'Input Select: Last',
+			options: [EntityPicker(initialState, 'input_select')],
+			callback: (evt): void => {
+				const { client } = getProps()
+
+				client?.sendMessage({
+					type: 'call_service',
+					domain: 'input_select',
+					service: 'select_last',
+					service_data: {
+						entity_id: evt.options.entity_id,
+					},
+				})
+			},
+		},
+		[ActionId.InputSelectNext]: {
+			label: 'Input Select: Next',
+			options: [EntityPicker(initialState, 'input_select')],
+			callback: (evt): void => {
+				const { client } = getProps()
+
+				client?.sendMessage({
+					type: 'call_service',
+					domain: 'input_select',
+					service: 'select_next',
+					service_data: {
+						entity_id: evt.options.entity_id,
+					},
+				})
+			},
+		},
+		[ActionId.InputSelectPrevious]: {
+			label: 'Input Select: Previous',
+			options: [EntityPicker(initialState, 'input_select')],
+			callback: (evt): void => {
+				const { client } = getProps()
+
+				client?.sendMessage({
+					type: 'call_service',
+					domain: 'input_select',
+					service: 'select_previous',
+					service_data: {
+						entity_id: evt.options.entity_id,
+					},
+				})
+			},
+		},
+		[ActionId.InputSelectSet]: {
+			label: 'Input Select: Select',
+			options: [
+				EntityPicker(initialState, 'input_select'),
+				{
+					type: 'textinput',
+					id: 'option',
+					default: '',
+					label: 'Option',
+				},
+			],
+			callback: (evt): void => {
+				const { client } = getProps()
+
+				client?.sendMessage({
+					type: 'call_service',
+					domain: 'input_select',
+					service: 'select_option',
+					service_data: {
+						entity_id: evt.options.entity_id,
+						option: evt.options.option,
 					},
 				})
 			},

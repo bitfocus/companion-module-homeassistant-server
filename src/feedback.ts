@@ -10,6 +10,7 @@ export enum FeedbackId {
 	InputBooleanState = 'input_boolean_state',
 	LightOnState = 'light_on_state',
 	BinarySensorState = 'binary_sensor_state',
+	InputSelectState = 'input_select_state',
 }
 
 type CompanionFeedbackWithCallback = SetRequired<CompanionFeedbackBoolean, 'callback'>
@@ -74,6 +75,32 @@ export function GetFeedbacksList(
 				bgcolor: instance.rgb(0, 255, 0),
 			},
 			callback: (feedback): boolean => checkEntityOnOffState(feedback),
+		},
+		[FeedbackId.InputSelectState]: {
+			type: 'boolean',
+			label: 'Change from input select state',
+			description: 'If the input select state matches the rule, change style of the bank',
+			options: [
+				EntityPicker(initialState, 'input_select'),
+				{
+					type: 'textinput',
+					id: 'option',
+					default: '',
+					label: 'Option',
+				},
+			],
+			style: {
+				color: instance.rgb(0, 0, 0),
+				bgcolor: instance.rgb(0, 255, 0),
+			},
+			callback: (feedback): boolean => {
+				const state = getState()
+				const entity = state[String(feedback.options.entity_id)]
+				if (entity) {
+					return entity.state === feedback.options.option
+				}
+				return false
+			},
 		},
 	}
 
