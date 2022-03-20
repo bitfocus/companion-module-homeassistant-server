@@ -1,5 +1,10 @@
 import { HassEntities } from 'home-assistant-js-websocket'
-import { CompanionInputFieldCheckbox, CompanionInputFieldDropdown } from '../../../instance_skel_types'
+import {
+	CompanionInputFieldCheckbox,
+	CompanionInputFieldDropdown,
+	CompanionInputFieldMultiDropdown,
+	DropdownChoice,
+} from '../../../instance_skel_types'
 import { OnOffToggle } from './util'
 
 export const LIGHT_MAX_BRIGHTNESS = 255
@@ -28,22 +33,47 @@ export function OnOffPicker(): CompanionInputFieldCheckbox {
 	}
 }
 
-export function EntityPicker(state: HassEntities, prefix: string): CompanionInputFieldDropdown {
-	const entities = Object.values(state).filter((ent) => ent.entity_id.indexOf(`${prefix}.`) === 0)
+function EntityOptions(state: HassEntities, prefix: string | undefined): DropdownChoice[] {
+	const entities = Object.values(state).filter(
+		(ent) => prefix === undefined || ent.entity_id.indexOf(`${prefix}.`) === 0
+	)
+
+	return entities
+		.map((ent) => ({
+			id: ent.entity_id,
+			label: ent.attributes.friendly_name || ent.entity_id,
+		}))
+		.sort((a, b) => {
+			const a2 = a.label.toLowerCase()
+			const b2 = b.label.toLowerCase()
+			return a2 === b2 ? 0 : a2 < b2 ? -1 : 1
+		})
+}
+
+export function EntityPicker(state: HassEntities, prefix: string | undefined): CompanionInputFieldDropdown {
+	const choices = EntityOptions(state, prefix)
+
 	return {
 		type: 'dropdown',
 		label: 'Entity',
 		id: 'entity_id',
-		default: entities[0] ? entities[0].entity_id : '',
-		choices: entities
-			.map((ent) => ({
-				id: ent.entity_id,
-				label: ent.attributes.friendly_name || ent.entity_id,
-			}))
-			.sort((a, b) => {
-				const a2 = a.label.toLowerCase()
-				const b2 = b.label.toLowerCase()
-				return a2 === b2 ? 0 : a2 < b2 ? -1 : 1
-			}),
+		default: choices[0]?.id ?? '',
+		choices: choices,
+	}
+}
+
+export function EntityMultiplePicker(
+	state: HassEntities,
+	prefix: string | undefined
+): CompanionInputFieldMultiDropdown {
+	const choices = EntityOptions(state, prefix)
+
+	return {
+		type: 'dropdown',
+		label: 'Entities',
+		id: 'entity_id',
+		multiple: true,
+		default: [],
+		choices: choices,
 	}
 }

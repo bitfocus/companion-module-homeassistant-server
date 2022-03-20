@@ -201,5 +201,41 @@ export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: Hass
 		})
 	}
 
+	for (const ent of EntityPicker(state, 'group').choices) {
+		presets.push({
+			category: 'Group',
+			label: `Group ${ent.label}`,
+			bank: {
+				style: 'text',
+				text: `$(homeassistant-server:entity.${ent.id})`,
+				size: 'auto',
+				color: instance.rgb(255, 255, 255),
+				bgcolor: instance.rgb(0, 0, 0),
+			},
+			feedbacks: [
+				{
+					type: FeedbackId.GroupOnState,
+					options: {
+						entity_id: ent.id,
+						state: true,
+					},
+					style: {
+						bgcolor: instance.rgb(0, 255, 0),
+						color: instance.rgb(0, 0, 0),
+					},
+				},
+			],
+			actions: [
+				{
+					action: ActionId.SetGroupOn,
+					options: {
+						entity_id: ent.id,
+						state: OnOffToggle.Toggle,
+					},
+				},
+			],
+		})
+	}
+
 	return presets
 }

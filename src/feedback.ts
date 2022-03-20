@@ -11,6 +11,7 @@ export enum FeedbackId {
 	LightOnState = 'light_on_state',
 	BinarySensorState = 'binary_sensor_state',
 	InputSelectState = 'input_select_state',
+	GroupOnState = 'group_on_state',
 }
 
 type CompanionFeedbackWithCallback = SetRequired<CompanionFeedbackBoolean, 'callback'>
@@ -101,6 +102,17 @@ export function GetFeedbacksList(
 				}
 				return false
 			},
+		},
+		[FeedbackId.GroupOnState]: {
+			type: 'boolean',
+			label: 'Change from group on state',
+			description: 'If the group state matches the rule, change style of the bank',
+			options: [EntityPicker(initialState, 'group'), OnOffPicker()],
+			style: {
+				color: instance.rgb(0, 0, 0),
+				bgcolor: instance.rgb(0, 255, 0),
+			},
+			callback: (feedback): boolean => checkEntityOnOffState(feedback),
 		},
 	}
 

@@ -1,6 +1,6 @@
 import { Connection, HassEntities } from 'home-assistant-js-websocket'
 import { CompanionActionEvent, CompanionActions, CompanionAction } from '../../../instance_skel_types'
-import { EntityPicker, OnOffTogglePicker } from './choices'
+import { EntityMultiplePicker, OnOffTogglePicker } from './choices'
 import { OnOffToggle } from './util'
 
 export enum ActionId {
@@ -17,6 +17,8 @@ export enum ActionId {
 	InputSelectNext = 'input_select_next',
 	InputSelectPrevious = 'input_select_previous',
 	InputSelectSet = 'input_select_set',
+	SetGroupOn = 'set_group_on',
+	CallService = 'call_service',
 }
 
 type CompanionActionWithCallback = CompanionAction & Required<Pick<CompanionAction, 'callback'>>
@@ -25,46 +27,43 @@ export function GetActionsList(
 	getProps: () => { state: HassEntities; client: Connection | undefined }
 ): CompanionActions {
 	const entityOnOff = (opt: CompanionActionEvent['options']): void => {
-		const { state, client } = getProps()
+		const { client } = getProps()
 
-		const entity = state[String(opt.entity_id)]
-		if (entity) {
-			let service: string
-			switch (opt.state as OnOffToggle) {
-				case OnOffToggle.Off:
-					service = 'turn_off'
-					break
-				case OnOffToggle.Toggle:
-					service = 'toggle'
-					break
-				default:
-					service = 'turn_on'
-					break
-			}
-
-			client?.sendMessage({
-				type: 'call_service',
-				domain: 'homeassistant',
-				service: service,
-				service_data: {
-					entity_id: [opt.entity_id],
-				},
-			})
+		let service: string
+		switch (opt.state as OnOffToggle) {
+			case OnOffToggle.Off:
+				service = 'turn_off'
+				break
+			case OnOffToggle.Toggle:
+				service = 'toggle'
+				break
+			default:
+				service = 'turn_on'
+				break
 		}
+
+		client?.sendMessage({
+			type: 'call_service',
+			domain: 'homeassistant',
+			service: service,
+			service_data: {
+				entity_id: opt.entity_id,
+			},
+		})
 	}
 
 	const { state: initialState } = getProps()
-	const pickerLights = EntityPicker(initialState, 'light')
+	const pickerLights = EntityMultiplePicker(initialState, 'light')
 
 	const actions: { [id in ActionId]: CompanionActionWithCallback | undefined } = {
 		[ActionId.SetSwitch]: {
 			label: 'Set switch state',
-			options: [EntityPicker(initialState, 'switch'), OnOffTogglePicker()],
+			options: [EntityMultiplePicker(initialState, 'switch'), OnOffTogglePicker()],
 			callback: (evt): void => entityOnOff(evt.options),
 		},
 		[ActionId.SetInputBoolean]: {
 			label: 'Set input_boolean state',
-			options: [EntityPicker(initialState, 'input_boolean'), OnOffTogglePicker()],
+			options: [EntityMultiplePicker(initialState, 'input_boolean'), OnOffTogglePicker()],
 			callback: (evt): void => entityOnOff(evt.options),
 		},
 		[ActionId.SetLightOn]: {
@@ -131,7 +130,7 @@ export function GetActionsList(
 		},
 		[ActionId.ExecuteScript]: {
 			label: 'Execute script',
-			options: [EntityPicker(initialState, 'script')],
+			options: [EntityMultiplePicker(initialState, 'script')],
 			callback: (evt): void => {
 				const { client } = getProps()
 				client?.sendMessage({
@@ -139,14 +138,14 @@ export function GetActionsList(
 					domain: 'homeassistant',
 					service: 'turn_on',
 					service_data: {
-						entity_id: [evt.options.entity_id],
+						entity_id: evt.options.entity_id,
 					},
 				})
 			},
 		},
 		[ActionId.PressButton]: {
 			label: 'Press button',
-			options: [EntityPicker(initialState, 'button')],
+			options: [EntityMultiplePicker(initialState, 'button')],
 			callback: (evt): void => {
 				const { client } = getProps()
 				client?.sendMessage({
@@ -154,14 +153,14 @@ export function GetActionsList(
 					domain: 'button',
 					service: 'press',
 					service_data: {
-						entity_id: [evt.options.entity_id],
+						entity_id: evt.options.entity_id,
 					},
 				})
 			},
 		},
 		[ActionId.ActivateScene]: {
 			label: 'Activate scene',
-			options: [EntityPicker(initialState, 'scene')],
+			options: [EntityMultiplePicker(initialState, 'scene')],
 			callback: (evt): void => {
 				const { client } = getProps()
 
@@ -177,7 +176,7 @@ export function GetActionsList(
 		},
 		[ActionId.InputSelectFirst]: {
 			label: 'Input Select: First',
-			options: [EntityPicker(initialState, 'input_select')],
+			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: (evt): void => {
 				const { client } = getProps()
 
@@ -193,7 +192,7 @@ export function GetActionsList(
 		},
 		[ActionId.InputSelectLast]: {
 			label: 'Input Select: Last',
-			options: [EntityPicker(initialState, 'input_select')],
+			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: (evt): void => {
 				const { client } = getProps()
 
@@ -209,7 +208,7 @@ export function GetActionsList(
 		},
 		[ActionId.InputSelectNext]: {
 			label: 'Input Select: Next',
-			options: [EntityPicker(initialState, 'input_select')],
+			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: (evt): void => {
 				const { client } = getProps()
 
@@ -225,7 +224,7 @@ export function GetActionsList(
 		},
 		[ActionId.InputSelectPrevious]: {
 			label: 'Input Select: Previous',
-			options: [EntityPicker(initialState, 'input_select')],
+			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: (evt): void => {
 				const { client } = getProps()
 
@@ -242,7 +241,7 @@ export function GetActionsList(
 		[ActionId.InputSelectSet]: {
 			label: 'Input Select: Select',
 			options: [
-				EntityPicker(initialState, 'input_select'),
+				EntityMultiplePicker(initialState, 'input_select'),
 				{
 					type: 'textinput',
 					id: 'option',
@@ -262,6 +261,53 @@ export function GetActionsList(
 						option: evt.options.option,
 					},
 				})
+			},
+		},
+		[ActionId.SetGroupOn]: {
+			label: 'Set group on/off state',
+			options: [EntityMultiplePicker(initialState, 'group'), OnOffTogglePicker()],
+			callback: (evt): void => entityOnOff(evt.options),
+		},
+		[ActionId.CallService]: {
+			label: 'Call Service',
+			description: 'Please open a feature request, so that useful things are properly supported',
+			options: [
+				EntityMultiplePicker(initialState, undefined),
+				{
+					type: 'textinput',
+					id: 'service',
+					default: '',
+					label: 'Service',
+				},
+				{
+					type: 'textinput',
+					id: 'payload',
+					tooltip: 'Must be valid JSON!',
+					default: '{ "option": "value" }',
+					label: 'Payload',
+				},
+			],
+			callback: (evt): void => {
+				const { client } = getProps()
+
+				try {
+					const payload = JSON.parse(evt.options.payload as string)
+
+					// Split the domain off of the service name
+					const service = `${evt.options.service}`.split('.', 2)
+
+					client?.sendMessage({
+						type: 'call_service',
+						domain: service[0],
+						service: service[1],
+						service_data: {
+							...payload,
+							entity_id: evt.options.entity_id,
+						},
+					})
+				} catch (e) {
+					console.debug(`Call service failed: ${e}`)
+				}
 			},
 		},
 	}
