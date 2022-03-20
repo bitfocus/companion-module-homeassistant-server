@@ -1,5 +1,5 @@
-import { Connection, HassEntities } from 'home-assistant-js-websocket'
-import { CompanionActionEvent, CompanionActions, CompanionAction } from '../../../instance_skel_types'
+import { Connection, HassEntities, HassServices } from 'home-assistant-js-websocket'
+import { CompanionActionEvent, CompanionActions, CompanionAction, DropdownChoice } from '../../../instance_skel_types'
 import { EntityMultiplePicker, OnOffTogglePicker } from './choices'
 import { OnOffToggle } from './util'
 
@@ -24,7 +24,7 @@ export enum ActionId {
 type CompanionActionWithCallback = CompanionAction & Required<Pick<CompanionAction, 'callback'>>
 
 export function GetActionsList(
-	getProps: () => { state: HassEntities; client: Connection | undefined }
+	getProps: () => { state: HassEntities; services: HassServices; client: Connection | undefined }
 ): CompanionActions {
 	const entityOnOff = (opt: CompanionActionEvent['options']): void => {
 		const { client } = getProps()
@@ -52,8 +52,19 @@ export function GetActionsList(
 		})
 	}
 
-	const { state: initialState } = getProps()
+	const { state: initialState, services: initialServices } = getProps()
 	const pickerLights = EntityMultiplePicker(initialState, 'light')
+
+	const serviceChoices: DropdownChoice[] = []
+	for (const [domain, services] of Object.entries(initialServices)) {
+		for (const [service, props] of Object.entries(services)) {
+			const id = `${domain}.${service}`
+			serviceChoices.push({
+				id: id,
+				label: props.name ? `${domain}: ${props.name}` : id,
+			})
+		}
+	}
 
 	const actions: { [id in ActionId]: CompanionActionWithCallback | undefined } = {
 		[ActionId.SetSwitch]: {
@@ -274,10 +285,12 @@ export function GetActionsList(
 			options: [
 				EntityMultiplePicker(initialState, undefined),
 				{
-					type: 'textinput',
 					id: 'service',
-					default: '',
 					label: 'Service',
+					type: 'dropdown',
+					default: serviceChoices[0]?.id,
+					choices: serviceChoices,
+					allowCustom: true,
 				},
 				{
 					type: 'textinput',

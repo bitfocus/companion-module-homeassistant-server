@@ -6,6 +6,8 @@ import {
 	subscribeEntities,
 	UnsubscribeFunc,
 	AuthData,
+	subscribeServices,
+	HassServices,
 } from 'home-assistant-js-websocket'
 import InstanceSkel = require('../../../instance_skel')
 import { CompanionConfigField, CompanionStaticUpgradeScript, CompanionSystem } from '../../../instance_skel_types'
@@ -23,9 +25,11 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 	public needsReconnect: boolean
 
 	private state: HassEntities
+	private services: HassServices
 	private client: Connection | undefined
 	private connecting: boolean
 	private unsubscribeEntities: UnsubscribeFunc | undefined
+	private unsubscribeServices: UnsubscribeFunc | undefined
 	private initDone: boolean
 
 	constructor(system: CompanionSystem, id: string, config: DeviceConfig) {
@@ -33,6 +37,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 
 		this.connecting = false
 		this.state = {}
+		this.services = {}
 		this.initDone = false
 		this.needsReconnect = false
 	}
@@ -59,7 +64,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		InitVariables(this, this.state)
 		this.setPresetDefinitions(GetPresetsList(this, this.state))
 		this.setFeedbackDefinitions(GetFeedbacksList(this, () => this.state))
-		this.setActions(GetActionsList(() => ({ state: this.state, client: this.client })))
+		this.setActions(GetActionsList(() => ({ state: this.state, services: this.services, client: this.client })))
 		updateVariables(this, this.state)
 
 		this.checkFeedbacks()
@@ -79,6 +84,9 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		if (this.unsubscribeEntities) {
 			this.unsubscribeEntities()
 		}
+		if (this.unsubscribeServices) {
+			this.unsubscribeServices()
+		}
 
 		try {
 			if (this.client) {
@@ -90,6 +98,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 
 		this.initDone = false
 		this.state = {}
+		this.services = {}
 		updateVariables(this, this.state)
 		this.checkFeedbacks()
 
@@ -112,6 +121,11 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 				this.unsubscribeEntities()
 				this.unsubscribeEntities = undefined
 			}
+			if (this.unsubscribeServices) {
+				this.unsubscribeServices()
+				this.unsubscribeServices = undefined
+			}
+
 			if (this.client) {
 				this.client.close()
 				this.client = undefined
@@ -123,6 +137,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		this.needsReconnect = false
 		this.initDone = false
 		this.state = {}
+		this.services = {}
 
 		this.debug('destroy', this.id)
 		this.status(this.STATUS_UNKNOWN)
@@ -144,7 +159,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		this.connecting = true
 		createConnection({
 			auth,
-			createSocket: () => createSocket(auth, this.config.ignore_certificates || false, this),
+			createSocket: async () => createSocket(auth, this.config.ignore_certificates || false, this),
 		})
 			.then((connection) => {
 				this.client = connection
@@ -169,6 +184,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 					this.log('info', `Reconnect failed`)
 				})
 
+				this.unsubscribeServices = subscribeServices(connection, this.processServicesChange.bind(this))
 				this.unsubscribeEntities = subscribeEntities(connection, this.processStateChange.bind(this))
 			})
 			.catch((e: number | string) => {
@@ -201,13 +217,19 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		if (entitiesChanged) {
 			this.setPresetDefinitions(GetPresetsList(this, this.state))
 			this.setFeedbackDefinitions(GetFeedbacksList(this, () => this.state))
-			this.setActions(GetActionsList(() => ({ state: this.state, client: this.client })))
+			this.setActions(GetActionsList(() => ({ state: this.state, client: this.client, services: this.services })))
 			InitVariables(this, this.state)
 		}
 
 		updateVariables(this, this.state)
 
 		this.checkFeedbacks()
+	}
+
+	private processServicesChange(services: HassServices): void {
+		this.services = services
+
+		this.setActions(GetActionsList(() => ({ state: this.state, client: this.client, services: this.services })))
 	}
 }
 
