@@ -10,6 +10,10 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### v0.8.1
+
+- 'Call any service' lists services reported by home-assistant
+
 ### v0.8.0
 
 - Support group, input_select entities
