@@ -1,4 +1,4 @@
-import { SomeCompanionConfigField } from '../../../instance_skel_types'
+import { SomeCompanionConfigField } from '@companion-module/base'
 
 export interface DeviceConfig {
 	url?: string

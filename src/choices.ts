@@ -1,10 +1,11 @@
-import { HassEntities } from 'home-assistant-js-websocket'
 import {
 	CompanionInputFieldCheckbox,
 	CompanionInputFieldDropdown,
 	CompanionInputFieldMultiDropdown,
 	DropdownChoice,
-} from '../../../instance_skel_types'
+} from '@companion-module/base'
+import { HassEntities } from 'home-assistant-js-websocket'
+
 import { OnOffToggle } from './util'
 
 export const LIGHT_MAX_BRIGHTNESS = 255
@@ -69,10 +70,9 @@ export function EntityMultiplePicker(
 	const choices = EntityOptions(state, prefix)
 
 	return {
-		type: 'dropdown',
+		type: 'multidropdown',
 		label: 'Entities',
 		id: 'entity_id',
-		multiple: true,
 		default: [],
 		choices: choices,
 	}

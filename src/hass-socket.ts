@@ -7,9 +7,9 @@ https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/so
 
 */
 
+import { InstanceBase } from '@companion-module/base'
 import * as ha from 'home-assistant-js-websocket'
 import * as WebSocket from 'ws'
-import InstanceSkel = require('../../../instance_skel')
 
 export function hassErrorToString(e: number): string {
 	switch (e) {
@@ -26,15 +26,15 @@ export function hassErrorToString(e: number): string {
 	}
 }
 
-export function createSocket(
+export async function createSocket(
 	auth: ha.Auth,
 	ignoreCertificates: boolean,
-	instance: InstanceSkel<unknown> & { needsReconnect: boolean }
+	instance: InstanceBase<unknown> & { needsReconnect: boolean }
 ): Promise<ha.HaWebSocket> {
 	// Convert from http:// -> ws://, https:// -> wss://
 	const url = auth.wsUrl
 
-	instance.debug('[Auth phase] Initializing WebSocket connection to Home Assistant', url)
+	instance.log('debug', `[Auth phase] Initializing WebSocket connection to Home Assistant: ${url}`)
 
 	function connect(
 		triesLeft: number,
@@ -47,8 +47,8 @@ export function createSocket(
 			return
 		}
 
-		instance.debug('[Auth Phase] Connecting to Home Assistant...', url)
-		instance.status(instance.STATUS_WARNING, 'Connecting')
+		instance.log('debug', `[Auth Phase] Connecting to Home Assistant...: ${url}`)
+		instance.updateStatus('connecting')
 
 		const socket = new WebSocket(url, {
 			rejectUnauthorized: !ignoreCertificates,
@@ -77,9 +77,9 @@ export function createSocket(
 		}
 
 		const closeOrError = (errorText?: string): void => {
-			instance.status(instance.STATUS_ERROR, errorText)
+			instance.updateStatus('unknown_error', errorText)
 			if (errorText) {
-				instance.debug(`Connection closed: ${errorText}`)
+				instance.log('debug', `Connection closed: ${errorText}`)
 			}
 			if (invalidAuth) {
 				promReject(ha.ERR_INVALID_AUTH)
@@ -99,8 +99,8 @@ export function createSocket(
 		}
 
 		// Auth is mandatory, so we can send the auth message right away.
-		const handleOpen = async (): Promise<void> => {
-			try {
+		const handleOpen = (): void => {
+			Promise.resolve(async () => {
 				if (auth.expired) {
 					await auth.refreshAccessToken()
 				}
@@ -110,18 +110,18 @@ export function createSocket(
 						access_token: auth.accessToken,
 					})
 				)
-			} catch (err) {
+			}).catch((err) => {
 				// Refresh token failed
 				invalidAuth = err === ha.ERR_INVALID_AUTH
 				socket.close()
-			}
+			})
 		}
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const handleMessage = async (event: { data: any; type: string; target: WebSocket }): Promise<void> => {
+		const handleMessage = (event: { data: any; type: string; target: WebSocket }): void => {
 			const message = JSON.parse(event.data)
 
-			instance.debug(`[Auth phase] Received a message of type ${message.type}`, message)
+			instance.log('debug', `[Auth phase] Received a message of type ${message.type}: ${JSON.stringify(message)}`)
 
 			switch (message.type) {
 				case ha.MSG_TYPE_AUTH_INVALID:
@@ -144,7 +144,7 @@ export function createSocket(
 				default:
 					// We already send this message when socket opens
 					if (message.type !== ha.MSG_TYPE_AUTH_REQUIRED) {
-						instance.debug('[Auth phase] Unhandled message', message)
+						instance.log('debug', `[Auth phase] Unhandled message: ${JSON.stringify(message)}`)
 					}
 			}
 		}

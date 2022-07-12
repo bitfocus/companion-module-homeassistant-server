@@ -9,21 +9,21 @@ import {
 	subscribeServices,
 	HassServices,
 } from 'home-assistant-js-websocket'
-import InstanceSkel = require('../../../instance_skel')
-import { CompanionConfigField, CompanionStaticUpgradeScript, CompanionSystem } from '../../../instance_skel_types'
 import { GetActionsList } from './actions'
 import { DeviceConfig, GetConfigFields } from './config'
 import { FeedbackId, GetFeedbacksList } from './feedback'
 import { createSocket, hassErrorToString } from './hass-socket'
-import { BooleanFeedbackUpgradeMap } from './upgrades'
 import { GetPresetsList } from './presets'
 import { InitVariables, updateVariables } from './variables'
+import { InstanceBase, runEntrypoint, SomeCompanionConfigField } from '@companion-module/base'
+import { UpgradeScripts } from './upgrades'
 
 const RECONNECT_INTERVAL = 5000
 
-class ControllerInstance extends InstanceSkel<DeviceConfig> {
+class ControllerInstance extends InstanceBase<DeviceConfig> {
 	public needsReconnect: boolean
 
+	private config: DeviceConfig
 	private state: HassEntities
 	private services: HassServices
 	private client: Connection | undefined
@@ -32,18 +32,15 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 	private unsubscribeServices: UnsubscribeFunc | undefined
 	private initDone: boolean
 
-	constructor(system: CompanionSystem, id: string, config: DeviceConfig) {
-		super(system, id, config)
+	constructor(internal: unknown) {
+		super(internal)
 
+		this.config = {}
 		this.connecting = false
 		this.state = {}
 		this.services = {}
 		this.initDone = false
 		this.needsReconnect = false
-	}
-
-	static GetUpgradeScripts(): CompanionStaticUpgradeScript[] {
-		return [ControllerInstance.CreateConvertToBooleanFeedbackUpgradeScript(BooleanFeedbackUpgradeMap)]
 	}
 
 	// Override base types to make types stricter
@@ -57,23 +54,24 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 	 * Main initialization function called once the module
 	 * is OK to start doing things.
 	 */
-	public init(): void {
-		this.status(this.STATUS_UNKNOWN)
-		this.updateConfig(this.config)
+	public async init(config: DeviceConfig): Promise<void> {
+		this.config = config
+
+		await this.configUpdated(this.config)
 
 		InitVariables(this, this.state)
-		this.setPresetDefinitions(GetPresetsList(this, this.state))
-		this.setFeedbackDefinitions(GetFeedbacksList(this, () => this.state))
-		this.setActions(GetActionsList(() => ({ state: this.state, services: this.services, client: this.client })))
+		this.setPresetDefinitions(GetPresetsList(this.state))
+		this.setFeedbackDefinitions(GetFeedbacksList(() => this.state))
+		this.setActionDefinitions(
+			GetActionsList(() => ({ state: this.state, services: this.services, client: this.client }))
+		)
 		updateVariables(this, this.state)
-
-		this.checkFeedbacks()
 	}
 
 	/**
 	 * Process an updated configuration array.
 	 */
-	public updateConfig(config: DeviceConfig): void {
+	public async configUpdated(config: DeviceConfig): Promise<void> {
 		this.config = config
 
 		if (this.connecting) {
@@ -108,14 +106,14 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 	/**
 	 * Creates the configuration fields for web config.
 	 */
-	public config_fields(): CompanionConfigField[] {
+	public getConfigFields(): SomeCompanionConfigField[] {
 		return GetConfigFields()
 	}
 
 	/**
 	 * Clean up the instance before it is destroyed.
 	 */
-	public destroy(): void {
+	public async destroy(): Promise<void> {
 		try {
 			if (this.unsubscribeEntities) {
 				this.unsubscribeEntities()
@@ -139,8 +137,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		this.state = {}
 		this.services = {}
 
-		this.debug('destroy', this.id)
-		this.status(this.STATUS_UNKNOWN)
+		this.log('debug', `destroy ${this.id}`)
 	}
 
 	private tryConnect(): void {
@@ -161,26 +158,26 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 			auth,
 			createSocket: async () => createSocket(auth, this.config.ignore_certificates || false, this),
 		})
-			.then((connection) => {
+			.then(async (connection) => {
 				this.client = connection
 				this.connecting = false
-				this.status(this.STATUS_OK)
+				this.updateStatus('ok')
 
 				this.log('info', `Connected to v${connection.haVersion}`)
 
 				connection.addEventListener('disconnected', () => {
 					this.connecting = true
-					this.status(this.STATUS_ERROR, 'Lost connection')
+					this.updateStatus('disconnected', 'Lost connection')
 					this.log('info', `Lost connection`)
 				})
 				connection.addEventListener('ready', () => {
 					this.connecting = false
-					this.status(this.STATUS_OK)
+					this.updateStatus('ok')
 					this.log('info', `Reconnected to v${connection.haVersion}`)
 				})
 				connection.addEventListener('reconnect-error', () => {
 					this.connecting = false
-					this.status(this.STATUS_ERROR, 'Reconnect failed')
+					this.updateStatus('connection_failure', 'Reconnect failed')
 					this.log('info', `Reconnect failed`)
 				})
 
@@ -197,7 +194,7 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 				const errorMsg = typeof e === 'number' ? hassErrorToString(e) : e
 				this.connecting = false
 				this.client = undefined
-				this.status(this.STATUS_ERROR, errorMsg)
+				this.updateStatus('unknown_error', errorMsg)
 				this.log('error', `Connect failed: ${errorMsg}`)
 
 				// Try and reset connection
@@ -215,9 +212,11 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 		this.initDone = true
 
 		if (entitiesChanged) {
-			this.setPresetDefinitions(GetPresetsList(this, this.state))
-			this.setFeedbackDefinitions(GetFeedbacksList(this, () => this.state))
-			this.setActions(GetActionsList(() => ({ state: this.state, client: this.client, services: this.services })))
+			this.setPresetDefinitions(GetPresetsList(this.state))
+			this.setFeedbackDefinitions(GetFeedbacksList(() => this.state))
+			this.setActionDefinitions(
+				GetActionsList(() => ({ state: this.state, client: this.client, services: this.services }))
+			)
 			InitVariables(this, this.state)
 		}
 
@@ -229,7 +228,9 @@ class ControllerInstance extends InstanceSkel<DeviceConfig> {
 	private processServicesChange(services: HassServices): void {
 		this.services = services
 
-		this.setActions(GetActionsList(() => ({ state: this.state, client: this.client, services: this.services })))
+		this.setActionDefinitions(
+			GetActionsList(() => ({ state: this.state, client: this.client, services: this.services }))
+		)
 	}
 }
 
@@ -246,4 +247,4 @@ function getStateInfoString(state: HassEntities): string {
 	)
 }
 
-export = ControllerInstance
+runEntrypoint(ControllerInstance, UpgradeScripts)

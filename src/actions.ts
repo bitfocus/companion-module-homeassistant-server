@@ -1,5 +1,10 @@
 import { Connection, HassEntities, HassServices } from 'home-assistant-js-websocket'
-import { CompanionActionEvent, CompanionActions, CompanionAction, DropdownChoice } from '../../../instance_skel_types'
+import {
+	CompanionActionEvent,
+	CompanionActionDefinitions,
+	CompanionActionDefinition,
+	DropdownChoice,
+} from '@companion-module/base'
 import { EntityMultiplePicker, OnOffTogglePicker } from './choices'
 import { OnOffToggle } from './util'
 
@@ -21,11 +26,9 @@ export enum ActionId {
 	CallService = 'call_service',
 }
 
-type CompanionActionWithCallback = CompanionAction & Required<Pick<CompanionAction, 'callback'>>
-
 export function GetActionsList(
 	getProps: () => { state: HassEntities; services: HassServices; client: Connection | undefined }
-): CompanionActions {
+): CompanionActionDefinitions {
 	const entityOnOff = (opt: CompanionActionEvent['options']): void => {
 		const { client } = getProps()
 
@@ -66,24 +69,24 @@ export function GetActionsList(
 		}
 	}
 
-	const actions: { [id in ActionId]: CompanionActionWithCallback | undefined } = {
+	const actions: { [id in ActionId]: CompanionActionDefinition | undefined } = {
 		[ActionId.SetSwitch]: {
-			label: 'Set switch state',
+			name: 'Set switch state',
 			options: [EntityMultiplePicker(initialState, 'switch'), OnOffTogglePicker()],
 			callback: (evt): void => entityOnOff(evt.options),
 		},
 		[ActionId.SetInputBoolean]: {
-			label: 'Set input_boolean state',
+			name: 'Set input_boolean state',
 			options: [EntityMultiplePicker(initialState, 'input_boolean'), OnOffTogglePicker()],
 			callback: (evt): void => entityOnOff(evt.options),
 		},
 		[ActionId.SetLightOn]: {
-			label: 'Set light on/off state',
+			name: 'Set light on/off state',
 			options: [pickerLights, OnOffTogglePicker()],
 			callback: (evt): void => entityOnOff(evt.options),
 		},
 		[ActionId.SetLightPercent]: {
-			label: 'Set light brightness (percentage)',
+			name: 'Set light brightness (percentage)',
 			options: [
 				pickerLights,
 				{
@@ -112,7 +115,7 @@ export function GetActionsList(
 			},
 		},
 		[ActionId.AdjLightPercent]: {
-			label: 'Adjust light brightness (percentage)',
+			name: 'Adjust light brightness (percentage)',
 			options: [
 				pickerLights,
 				{
@@ -140,7 +143,7 @@ export function GetActionsList(
 			},
 		},
 		[ActionId.ExecuteScript]: {
-			label: 'Execute script',
+			name: 'Execute script',
 			options: [EntityMultiplePicker(initialState, 'script')],
 			callback: (evt): void => {
 				const { client } = getProps()
@@ -155,7 +158,7 @@ export function GetActionsList(
 			},
 		},
 		[ActionId.PressButton]: {
-			label: 'Press button',
+			name: 'Press button',
 			options: [EntityMultiplePicker(initialState, 'button')],
 			callback: (evt): void => {
 				const { client } = getProps()
@@ -170,7 +173,7 @@ export function GetActionsList(
 			},
 		},
 		[ActionId.ActivateScene]: {
-			label: 'Activate scene',
+			name: 'Activate scene',
 			options: [EntityMultiplePicker(initialState, 'scene')],
 			callback: (evt): void => {
 				const { client } = getProps()
@@ -186,7 +189,7 @@ export function GetActionsList(
 			},
 		},
 		[ActionId.InputSelectFirst]: {
-			label: 'Input Select: First',
+			name: 'Input Select: First',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: (evt): void => {
 				const { client } = getProps()
@@ -202,7 +205,7 @@ export function GetActionsList(
 			},
 		},
 		[ActionId.InputSelectLast]: {
-			label: 'Input Select: Last',
+			name: 'Input Select: Last',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: (evt): void => {
 				const { client } = getProps()
@@ -218,7 +221,7 @@ export function GetActionsList(
 			},
 		},
 		[ActionId.InputSelectNext]: {
-			label: 'Input Select: Next',
+			name: 'Input Select: Next',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: (evt): void => {
 				const { client } = getProps()
@@ -234,7 +237,7 @@ export function GetActionsList(
 			},
 		},
 		[ActionId.InputSelectPrevious]: {
-			label: 'Input Select: Previous',
+			name: 'Input Select: Previous',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: (evt): void => {
 				const { client } = getProps()
@@ -250,7 +253,7 @@ export function GetActionsList(
 			},
 		},
 		[ActionId.InputSelectSet]: {
-			label: 'Input Select: Select',
+			name: 'Input Select: Select',
 			options: [
 				EntityMultiplePicker(initialState, 'input_select'),
 				{
@@ -275,12 +278,12 @@ export function GetActionsList(
 			},
 		},
 		[ActionId.SetGroupOn]: {
-			label: 'Set group on/off state',
+			name: 'Set group on/off state',
 			options: [EntityMultiplePicker(initialState, 'group'), OnOffTogglePicker()],
 			callback: (evt): void => entityOnOff(evt.options),
 		},
 		[ActionId.CallService]: {
-			label: 'Call Service',
+			name: 'Call Service',
 			description: 'Please open a feature request, so that useful things are properly supported',
 			options: [
 				EntityMultiplePicker(initialState, undefined),

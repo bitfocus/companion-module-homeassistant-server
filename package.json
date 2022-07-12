@@ -1,30 +1,17 @@
 {
 	"name": "homeassistant-server",
-	"version": "0.8.1",
-	"api_version": "1.0.0",
-	"description": "Home Assistant Server",
-	"keywords": [
-		"Generic"
-	],
-	"manufacturer": "Home Assistant",
-	"product": "Server",
-	"shortname": "homeassistant-server",
-	"homepage": "https://github.com/bitfocus/companion-module-homeassistant-server#readme",
+	"version": "1.0.0-0",
 	"main": "dist/index.js",
 	"scripts": {
 		"prepare": "husky install",
-		"build": "npx rimraf dist && npx typescript@~4.5 -p tsconfig.build.json",
+		"build": "rimraf dist && yarn build:main",
 		"build:main": "tsc -p tsconfig.build.json",
 		"dev": "tsc -p tsconfig.build.json --watch",
-		"lint:raw": "eslint --ext .ts --ext .js --ignore-pattern dist",
-		"lint": "yarn lint:raw .",
-		"lint-fix": "yarn lint --fix",
-		"license-validate": "yarn sofie-licensecheck",
-		"postinstall": "yarn build"
+		"lint:raw": "eslint --ext .ts --ext .js --ignore-pattern dist --ignore-pattern pkg",
+		"lint": "yarn lint:raw ."
 	},
-	"author": "Julian Waller <git@julusian.co.uk>",
 	"license": "MIT",
-	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
+	"prettier": "@companion-module/tools/.prettierrc.json",
 	"lint-staged": {
 		"*.{css,json,md,scss}": [
 			"prettier --write"
@@ -37,18 +24,18 @@
 		"node": "^14 || ^16"
 	},
 	"dependencies": {
-		"@types/node": "^14.18.12",
-		"@types/ws": "^8.5.3",
-		"home-assistant-js-websocket": "^7.0.2",
-		"type-fest": "^2.12.2",
-		"ws": "^8.5.0"
+		"@companion-module/base": "~0.0.3",
+		"home-assistant-js-websocket": "^7.1.0",
+		"ws": "^8.8.0"
 	},
 	"devDependencies": {
-		"@sofie-automation/code-standard-preset": "~2.0",
-		"typescript": "~4.5"
-	},
-	"bugs": {
-		"url": "https://github.com/bitfocus/companion-module-homeassistant-server/issues"
+		"@companion-module/tools": "^0.0.2",
+		"@types/node": "^14.18.21",
+		"@types/ws": "^8.5.3",
+		"husky": "^8.0.1",
+		"lint-staged": "^13.0.3",
+		"rimraf": "^3.0.2",
+		"typescript": "~4.7"
 	},
 	"repository": {
 		"type": "git",

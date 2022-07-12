@@ -1,6 +1,8 @@
+import { CompanionStaticUpgradeScript, CreateConvertToBooleanFeedbackUpgradeScript } from '@companion-module/base'
+import { DeviceConfig } from './config'
 import { FeedbackId } from './feedback'
 
-export const BooleanFeedbackUpgradeMap: {
+const BooleanFeedbackUpgradeMap: {
 	[id in FeedbackId]?: true
 } = {
 	[FeedbackId.SwitchState]: true,
@@ -8,3 +10,7 @@ export const BooleanFeedbackUpgradeMap: {
 	[FeedbackId.LightOnState]: true,
 	[FeedbackId.BinarySensorState]: true,
 }
+
+export const UpgradeScripts: CompanionStaticUpgradeScript<DeviceConfig>[] = [
+	CreateConvertToBooleanFeedbackUpgradeScript(BooleanFeedbackUpgradeMap),
+]
