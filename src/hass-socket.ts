@@ -100,21 +100,23 @@ export async function createSocket(
 
 		// Auth is mandatory, so we can send the auth message right away.
 		const handleOpen = (): void => {
-			Promise.resolve(async () => {
-				if (auth.expired) {
-					await auth.refreshAccessToken()
-				}
-				socket.send(
-					JSON.stringify({
-						type: 'auth',
-						access_token: auth.accessToken,
-					})
-				)
-			}).catch((err) => {
-				// Refresh token failed
-				invalidAuth = err === ha.ERR_INVALID_AUTH
-				socket.close()
-			})
+			Promise.resolve()
+				.then(async () => {
+					if (auth.expired) {
+						await auth.refreshAccessToken()
+					}
+					socket.send(
+						JSON.stringify({
+							type: 'auth',
+							access_token: auth.accessToken,
+						})
+					)
+				})
+				.catch((err) => {
+					// Refresh token failed
+					invalidAuth = err === ha.ERR_INVALID_AUTH
+					socket.close()
+				})
 		}
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,13 +1,12 @@
 import {
-	Auth,
 	Connection,
 	createConnection,
 	HassEntities,
 	subscribeEntities,
 	UnsubscribeFunc,
-	AuthData,
 	subscribeServices,
 	HassServices,
+	createLongLivedTokenAuth,
 } from 'home-assistant-js-websocket'
 import { GetActionsList } from './actions'
 import { DeviceConfig, GetConfigFields } from './config'
@@ -17,6 +16,7 @@ import { GetPresetsList } from './presets'
 import { InitVariables, updateVariables } from './variables'
 import { InstanceBase, runEntrypoint, SomeCompanionConfigField } from '@companion-module/base'
 import { UpgradeScripts } from './upgrades'
+import { stripTrailingSlash } from './util'
 
 const RECONNECT_INTERVAL = 5000
 
@@ -147,11 +147,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 		this.needsReconnect = false
 
-		const auth = new Auth({
-			access_token: this.config.access_token || '',
-			expires: Date.now() + 1e11,
-			hassUrl: this.config.url || '',
-		} as unknown as AuthData)
+		const auth = createLongLivedTokenAuth(stripTrailingSlash(this.config.url || ''), this.config.access_token || '')
 
 		this.connecting = true
 		createConnection({
