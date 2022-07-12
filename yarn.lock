@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@companion-module/base@~0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@companion-module/base/-/base-0.0.3.tgz#48b90fb7d44d561bfcd1ce95adeccb02c697fab9"
-  integrity sha512-nEBj9XfBLalYBv3vjKix5U91oI2Cd0SJqZquvRKoyR0n5eOL9iYYdjPVS+gGUsejYup8A+s5JVscTmXJsh+r9g==
+"@companion-module/base@~0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@companion-module/base/-/base-0.1.0.tgz#7e5dfd0748992ac36882332b015c09ac33618cb0"
+  integrity sha512-v3z79PojQuFVkiKf8BDDiV1AtjdbEROck54s94t3ShzIUfsY3nZJjFO93+wi9zSK8+cu/zne58YGyUiQHpqNcA==
   dependencies:
     "@sentry/node" "^7.5.1"
     "@sentry/tracing" "^7.5.1"
@@ -14,10 +14,10 @@
     socket.io-client "^4.5.1"
     tslib "^2.4.0"
 
-"@companion-module/tools@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@companion-module/tools/-/tools-0.0.2.tgz#9758b558c281aa56afd4234f2eb9ff2343475dad"
-  integrity sha512-G2S61mXE0L/5Ee7zRUv57ZJeZD3lwdS48g0xyn38OJ0OZCoHdIUCh9GtubacIqsZdRsPf4ULaHk2Z49PKQmubA==
+"@companion-module/tools@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@companion-module/tools/-/tools-0.1.0.tgz#179107e23c6146ba93a6b7789465b2798f76138b"
+  integrity sha512-1TAfdjFs4Qi1dUbuL7fko2042h54c9uwT3jOHoeTES6CA2cJ57WO2KgT0JWegxHfaQRlk+jdc1ViM5OvqBGt5A==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^5.30.5"
     "@typescript-eslint/parser" "^5.30.5"
@@ -26,8 +26,6 @@
     eslint-plugin-node "^11.1.0"
     eslint-plugin-prettier "^4.2.1"
     find-up "^6.3.0"
-    husky "^8.0.1"
-    lint-staged "^13.0.3"
     parse-author "^2.0.0"
     prettier "^2.7.1"
     webpack "^5.73.0"
