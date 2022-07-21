@@ -1,5 +1,5 @@
 {
-	"id": "bitfocus.homeassistant-server",
+	"id": "homeassistant-server",
 	"name": "homeassistant-server",
 	"shortname": "homeassistant-server",
 	"description": "Home Assistant Server",
@@ -13,7 +13,7 @@
 			"email": "git@julusian.co.uk"
 		}
 	],
-	"legacyIds": ["homeassistant-server"],
+	"legacyIds": [],
 	"runtime": {
 		"type": "node14",
 		"api": "socket.io",
