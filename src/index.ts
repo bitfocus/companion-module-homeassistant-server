@@ -14,7 +14,7 @@ import { FeedbackId, GetFeedbacksList } from './feedback'
 import { createSocket, hassErrorToString } from './hass-socket'
 import { GetPresetsList } from './presets'
 import { InitVariables, updateVariables } from './variables'
-import { InstanceBase, runEntrypoint, SomeCompanionConfigField } from '@companion-module/base'
+import { InstanceBase, InstanceStatus, runEntrypoint, SomeCompanionConfigField } from '@companion-module/base'
 import { UpgradeScripts } from './upgrades'
 import { stripTrailingSlash } from './util'
 
@@ -157,23 +157,23 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 			.then(async (connection) => {
 				this.client = connection
 				this.connecting = false
-				this.updateStatus('ok')
+				this.updateStatus(InstanceStatus.Ok)
 
 				this.log('info', `Connected to v${connection.haVersion}`)
 
 				connection.addEventListener('disconnected', () => {
 					this.connecting = true
-					this.updateStatus('disconnected', 'Lost connection')
+					this.updateStatus(InstanceStatus.Disconnected, 'Lost connection')
 					this.log('info', `Lost connection`)
 				})
 				connection.addEventListener('ready', () => {
 					this.connecting = false
-					this.updateStatus('ok')
+					this.updateStatus(InstanceStatus.Ok)
 					this.log('info', `Reconnected to v${connection.haVersion}`)
 				})
 				connection.addEventListener('reconnect-error', () => {
 					this.connecting = false
-					this.updateStatus('connection_failure', 'Reconnect failed')
+					this.updateStatus(InstanceStatus.ConnectionFailure, 'Reconnect failed')
 					this.log('info', `Reconnect failed`)
 				})
 
@@ -190,7 +190,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 				const errorMsg = typeof e === 'number' ? hassErrorToString(e) : e
 				this.connecting = false
 				this.client = undefined
-				this.updateStatus('unknown_error', errorMsg)
+				this.updateStatus(InstanceStatus.UnknownError, errorMsg)
 				this.log('error', `Connect failed: ${errorMsg}`)
 
 				// Try and reset connection

@@ -7,7 +7,7 @@ https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/so
 
 */
 
-import { InstanceBase } from '@companion-module/base'
+import { InstanceBase, InstanceStatus } from '@companion-module/base'
 import * as ha from 'home-assistant-js-websocket'
 import * as WebSocket from 'ws'
 
@@ -48,7 +48,7 @@ export async function createSocket(
 		}
 
 		instance.log('debug', `[Auth Phase] Connecting to Home Assistant...: ${url}`)
-		instance.updateStatus('connecting')
+		instance.updateStatus(InstanceStatus.Connecting)
 
 		const socket = new WebSocket(url, {
 			rejectUnauthorized: !ignoreCertificates,
@@ -77,7 +77,7 @@ export async function createSocket(
 		}
 
 		const closeOrError = (errorText?: string): void => {
-			instance.updateStatus('unknown_error', errorText)
+			instance.updateStatus(InstanceStatus.UnknownError, errorText)
 			if (errorText) {
 				instance.log('debug', `Connection closed: ${errorText}`)
 			}
