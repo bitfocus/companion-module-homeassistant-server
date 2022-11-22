@@ -1,28 +1,28 @@
-import { combineRgb, CompanionPresetDefinitions, CompanionPressButtonPresetDefinition } from '@companion-module/base'
+import { combineRgb, CompanionPresetDefinitions, CompanionButtonPresetDefinition } from '@companion-module/base'
 import { HassEntities } from 'home-assistant-js-websocket'
 import { ActionId } from './actions'
 import { EntityPicker } from './choices'
 import { FeedbackId } from './feedback'
 import { OnOffToggle } from './util'
 
-interface CompanionPresetExt extends CompanionPressButtonPresetDefinition {
+interface CompanionPresetExt extends CompanionButtonPresetDefinition {
 	feedbacks: Array<
 		{
 			feedbackId: FeedbackId
-		} & CompanionPressButtonPresetDefinition['feedbacks'][0]
+		} & CompanionButtonPresetDefinition['feedbacks'][0]
 	>
-	actions: {
+	steps: Array<{
 		down: Array<
 			{
 				actionId: ActionId
-			} & CompanionPressButtonPresetDefinition['actions']['down'][0]
+			} & CompanionButtonPresetDefinition['steps'][0]['down'][0]
 		>
 		up: Array<
 			{
 				actionId: ActionId
-			} & CompanionPressButtonPresetDefinition['actions']['up'][0]
+			} & CompanionButtonPresetDefinition['steps'][0]['up'][0]
 		>
-	}
+	}>
 }
 interface CompanionPresetDefinitionsExt {
 	[id: string]: CompanionPresetExt | undefined
@@ -33,7 +33,7 @@ export function GetPresetsList(state: HassEntities): CompanionPresetDefinitions 
 
 	for (const ent of EntityPicker(state, 'switch').choices) {
 		presets[`switch_set_${ent.id}`] = {
-			type: 'press',
+			type: 'button',
 			category: 'Switch',
 			name: `Switch ${ent.label}`,
 			style: {
@@ -55,24 +55,26 @@ export function GetPresetsList(state: HassEntities): CompanionPresetDefinitions 
 					},
 				},
 			],
-			actions: {
-				down: [
-					{
-						actionId: ActionId.SetSwitch,
-						options: {
-							entity_id: ent.id,
-							state: OnOffToggle.Toggle,
+			steps: [
+				{
+					down: [
+						{
+							actionId: ActionId.SetSwitch,
+							options: {
+								entity_id: ent.id,
+								state: OnOffToggle.Toggle,
+							},
 						},
-					},
-				],
-				up: [],
-			},
+					],
+					up: [],
+				},
+			],
 		}
 	}
 
 	for (const ent of EntityPicker(state, 'input_boolean').choices) {
 		presets[`input_boolean_set_${ent.id}`] = {
-			type: 'press',
+			type: 'button',
 			category: 'Input Boolean',
 			name: `Input Boolean ${ent.label}`,
 			style: {
@@ -94,24 +96,26 @@ export function GetPresetsList(state: HassEntities): CompanionPresetDefinitions 
 					},
 				},
 			],
-			actions: {
-				down: [
-					{
-						actionId: ActionId.SetInputBoolean,
-						options: {
-							entity_id: ent.id,
-							state: OnOffToggle.Toggle,
+			steps: [
+				{
+					down: [
+						{
+							actionId: ActionId.SetInputBoolean,
+							options: {
+								entity_id: ent.id,
+								state: OnOffToggle.Toggle,
+							},
 						},
-					},
-				],
-				up: [],
-			},
+					],
+					up: [],
+				},
+			],
 		}
 	}
 
 	for (const ent of EntityPicker(state, 'light').choices) {
 		presets[`light_set_${ent.id}`] = {
-			type: 'press',
+			type: 'button',
 			category: 'Light',
 			name: `Light ${ent.label}`,
 			style: {
@@ -133,24 +137,26 @@ export function GetPresetsList(state: HassEntities): CompanionPresetDefinitions 
 					},
 				},
 			],
-			actions: {
-				down: [
-					{
-						actionId: ActionId.SetLightOn,
-						options: {
-							entity_id: ent.id,
-							state: OnOffToggle.Toggle,
+			steps: [
+				{
+					down: [
+						{
+							actionId: ActionId.SetLightOn,
+							options: {
+								entity_id: ent.id,
+								state: OnOffToggle.Toggle,
+							},
 						},
-					},
-				],
-				up: [],
-			},
+					],
+					up: [],
+				},
+			],
 		}
 	}
 
 	for (const ent of EntityPicker(state, 'script').choices) {
 		presets[`script_execute_${ent.id}`] = {
-			type: 'press',
+			type: 'button',
 			category: 'Script',
 			name: `Script ${ent.label}`,
 			style: {
@@ -160,23 +166,25 @@ export function GetPresetsList(state: HassEntities): CompanionPresetDefinitions 
 				bgcolor: combineRgb(0, 0, 0),
 			},
 			feedbacks: [],
-			actions: {
-				down: [
-					{
-						actionId: ActionId.ExecuteScript,
-						options: {
-							entity_id: ent.id,
+			steps: [
+				{
+					down: [
+						{
+							actionId: ActionId.ExecuteScript,
+							options: {
+								entity_id: ent.id,
+							},
 						},
-					},
-				],
-				up: [],
-			},
+					],
+					up: [],
+				},
+			],
 		}
 	}
 
 	for (const ent of EntityPicker(state, 'button').choices) {
 		presets[`button_press_${ent.id}`] = {
-			type: 'press',
+			type: 'button',
 			category: 'Button',
 			name: `Button ${ent.label}`,
 			style: {
@@ -186,23 +194,25 @@ export function GetPresetsList(state: HassEntities): CompanionPresetDefinitions 
 				bgcolor: combineRgb(0, 0, 0),
 			},
 			feedbacks: [],
-			actions: {
-				down: [
-					{
-						actionId: ActionId.PressButton,
-						options: {
-							entity_id: ent.id,
+			steps: [
+				{
+					down: [
+						{
+							actionId: ActionId.PressButton,
+							options: {
+								entity_id: ent.id,
+							},
 						},
-					},
-				],
-				up: [],
-			},
+					],
+					up: [],
+				},
+			],
 		}
 	}
 
 	for (const ent of EntityPicker(state, 'scene').choices) {
 		presets[`scene_activate_${ent.id}`] = {
-			type: 'press',
+			type: 'button',
 			category: 'Scene',
 			name: `Scene ${ent.label}`,
 			style: {
@@ -212,23 +222,25 @@ export function GetPresetsList(state: HassEntities): CompanionPresetDefinitions 
 				bgcolor: combineRgb(0, 0, 0),
 			},
 			feedbacks: [],
-			actions: {
-				down: [
-					{
-						actionId: ActionId.ActivateScene,
-						options: {
-							entity_id: ent.id,
+			steps: [
+				{
+					down: [
+						{
+							actionId: ActionId.ActivateScene,
+							options: {
+								entity_id: ent.id,
+							},
 						},
-					},
-				],
-				up: [],
-			},
+					],
+					up: [],
+				},
+			],
 		}
 	}
 
 	for (const ent of EntityPicker(state, 'group').choices) {
 		presets[`group_set_on_${ent.id}`] = {
-			type: 'press',
+			type: 'button',
 			category: 'Group',
 			name: `Group ${ent.label}`,
 			style: {
@@ -250,18 +262,20 @@ export function GetPresetsList(state: HassEntities): CompanionPresetDefinitions 
 					},
 				},
 			],
-			actions: {
-				down: [
-					{
-						actionId: ActionId.SetGroupOn,
-						options: {
-							entity_id: ent.id,
-							state: OnOffToggle.Toggle,
+			steps: [
+				{
+					down: [
+						{
+							actionId: ActionId.SetGroupOn,
+							options: {
+								entity_id: ent.id,
+								state: OnOffToggle.Toggle,
+							},
 						},
-					},
-				],
-				up: [],
-			},
+					],
+					up: [],
+				},
+			],
 		}
 	}
 

@@ -32,6 +32,13 @@ export function InitVariables(instance: InstanceBase<DeviceConfig>, state: HassE
 			variableId: `entity.${entity.entity_id}`,
 		})
 
+		// for (let i = 0; i < 1000; i++) {
+		// 	variables.push({
+		// 		name: `Entity Value: ${entity.attributes.friendly_name ?? entity.entity_id}_${i}`,
+		// 		variableId: `entity.${entity.entity_id}.value_${i}`,
+		// 	})
+		// }
+
 		if (entity.entity_id.startsWith('light.')) {
 			variables.push({
 				name: `Light Brightness: ${entity.attributes.friendly_name ?? entity.entity_id}`,
