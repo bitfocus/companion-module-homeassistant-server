@@ -91,13 +91,14 @@ export function GetActionsList(
 				pickerLights,
 				{
 					type: 'number',
-					label: 'Adjustment',
+					label: 'Brightness',
 					id: 'pct',
 					default: 50,
 					min: 0,
 					max: 100,
 					step: 1,
 					range: true,
+					allowExpression: true,
 				},
 			],
 			callback: (evt): void => {

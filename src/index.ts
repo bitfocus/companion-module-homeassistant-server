@@ -93,6 +93,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		} catch (e) {
 			// Ignore
 		}
+		this.client = undefined
 
 		this.initDone = false
 		this.state = {}
@@ -126,11 +127,11 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 			if (this.client) {
 				this.client.close()
-				this.client = undefined
 			}
 		} catch (e) {
 			// Ignore
 		}
+		this.client = undefined
 
 		this.needsReconnect = false
 		this.initDone = false
@@ -145,18 +146,31 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 			return
 		}
 
+		this.connecting = true
 		this.needsReconnect = false
 
 		const auth = createLongLivedTokenAuth(stripTrailingSlash(this.config.url || ''), this.config.access_token || '')
 
-		this.connecting = true
 		createConnection({
 			auth,
 			createSocket: async () => createSocket(auth, this.config.ignore_certificates || false, this),
 		})
-			.then(async (connection) => {
-				this.client = connection
+			.then((connection) => {
 				this.connecting = false
+
+				// Need reconnection already?
+				if (this.needsReconnect) {
+					try {
+						connection.close()
+					} catch (e) {
+						// Ignore
+					}
+					// Restart the process with the new url
+					setImmediate(() => this.tryConnect())
+					return
+				}
+
+				this.client = connection
 				this.updateStatus(InstanceStatus.Ok)
 
 				this.log('info', `Connected to v${connection.haVersion}`)
@@ -181,6 +195,9 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 				this.unsubscribeEntities = subscribeEntities(connection, this.processStateChange.bind(this))
 			})
 			.catch((e: number | string) => {
+				this.connecting = false
+				this.client = undefined
+
 				if (this.needsReconnect) {
 					// Restart the process with the new url
 					setImmediate(() => this.tryConnect())
@@ -188,7 +205,6 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 				}
 
 				const errorMsg = typeof e === 'number' ? hassErrorToString(e) : e
-				this.connecting = false
 				this.client = undefined
 				this.updateStatus(InstanceStatus.UnknownError, errorMsg)
 				this.log('error', `Connect failed: ${errorMsg}`)
