@@ -7,7 +7,6 @@
 		"baseUrl": "./",
 		"paths": {
 			"*": ["./node_modules/*"]
-		},
-		"module": "commonjs"
+		}
 	}
 }
