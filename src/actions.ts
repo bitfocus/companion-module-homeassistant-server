@@ -98,7 +98,6 @@ export function GetActionsList(
 					max: 100,
 					step: 1,
 					range: true,
-					allowExpression: true,
 				},
 			],
 			callback: (evt): void => {
