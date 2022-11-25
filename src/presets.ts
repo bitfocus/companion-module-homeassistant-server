@@ -1,240 +1,282 @@
+import { combineRgb, CompanionPresetDefinitions, CompanionButtonPresetDefinition } from '@companion-module/base'
 import { HassEntities } from 'home-assistant-js-websocket'
-import { SetRequired } from 'type-fest'
-import InstanceSkel = require('../../../instance_skel')
-import { CompanionPreset } from '../../../instance_skel_types'
 import { ActionId } from './actions'
 import { EntityPicker } from './choices'
-import { DeviceConfig } from './config'
 import { FeedbackId } from './feedback'
 import { OnOffToggle } from './util'
 
-interface CompanionPresetExt extends CompanionPreset {
+interface CompanionPresetExt extends CompanionButtonPresetDefinition {
 	feedbacks: Array<
 		{
-			type: FeedbackId
-		} & SetRequired<CompanionPreset['feedbacks'][0], 'style'>
+			feedbackId: FeedbackId
+		} & CompanionButtonPresetDefinition['feedbacks'][0]
 	>
-	actions: Array<
-		{
-			action: ActionId
-		} & CompanionPreset['actions'][0]
-	>
+	steps: Array<{
+		down: Array<
+			{
+				actionId: ActionId
+			} & CompanionButtonPresetDefinition['steps'][0]['down'][0]
+		>
+		up: Array<
+			{
+				actionId: ActionId
+			} & CompanionButtonPresetDefinition['steps'][0]['up'][0]
+		>
+	}>
+}
+interface CompanionPresetDefinitionsExt {
+	[id: string]: CompanionPresetExt | undefined
 }
 
-export function GetPresetsList(instance: InstanceSkel<DeviceConfig>, state: HassEntities): CompanionPreset[] {
-	const presets: CompanionPresetExt[] = []
+export function GetPresetsList(state: HassEntities): CompanionPresetDefinitions {
+	const presets: CompanionPresetDefinitionsExt = {}
 
 	for (const ent of EntityPicker(state, 'switch').choices) {
-		presets.push({
+		presets[`switch_set_${ent.id}`] = {
+			type: 'button',
 			category: 'Switch',
-			label: `Switch ${ent.label}`,
-			bank: {
-				style: 'text',
+			name: `Switch ${ent.label}`,
+			style: {
 				text: `$(homeassistant-server:entity.${ent.id})`,
 				size: 'auto',
-				color: instance.rgb(255, 255, 255),
-				bgcolor: instance.rgb(0, 0, 0),
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 0, 0),
 			},
 			feedbacks: [
 				{
-					type: FeedbackId.SwitchState,
+					feedbackId: FeedbackId.SwitchState,
 					options: {
 						entity_id: ent.id,
 						state: true,
 					},
 					style: {
-						bgcolor: instance.rgb(0, 255, 0),
-						color: instance.rgb(0, 0, 0),
+						bgcolor: combineRgb(0, 255, 0),
+						color: combineRgb(0, 0, 0),
 					},
 				},
 			],
-			actions: [
+			steps: [
 				{
-					action: ActionId.SetSwitch,
-					options: {
-						entity_id: ent.id,
-						state: OnOffToggle.Toggle,
-					},
+					down: [
+						{
+							actionId: ActionId.SetSwitch,
+							options: {
+								entity_id: ent.id,
+								state: OnOffToggle.Toggle,
+							},
+						},
+					],
+					up: [],
 				},
 			],
-		})
+		}
 	}
 
 	for (const ent of EntityPicker(state, 'input_boolean').choices) {
-		presets.push({
+		presets[`input_boolean_set_${ent.id}`] = {
+			type: 'button',
 			category: 'Input Boolean',
-			label: `Input Boolean ${ent.label}`,
-			bank: {
-				style: 'text',
+			name: `Input Boolean ${ent.label}`,
+			style: {
 				text: `$(homeassistant-server:entity.${ent.id})`,
 				size: 'auto',
-				color: instance.rgb(255, 255, 255),
-				bgcolor: instance.rgb(0, 0, 0),
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 0, 0),
 			},
 			feedbacks: [
 				{
-					type: FeedbackId.InputBooleanState,
+					feedbackId: FeedbackId.InputBooleanState,
 					options: {
 						entity_id: ent.id,
 						state: true,
 					},
 					style: {
-						bgcolor: instance.rgb(0, 255, 0),
-						color: instance.rgb(0, 0, 0),
+						bgcolor: combineRgb(0, 255, 0),
+						color: combineRgb(0, 0, 0),
 					},
 				},
 			],
-			actions: [
+			steps: [
 				{
-					action: ActionId.SetInputBoolean,
-					options: {
-						entity_id: ent.id,
-						state: OnOffToggle.Toggle,
-					},
+					down: [
+						{
+							actionId: ActionId.SetInputBoolean,
+							options: {
+								entity_id: ent.id,
+								state: OnOffToggle.Toggle,
+							},
+						},
+					],
+					up: [],
 				},
 			],
-		})
+		}
 	}
 
 	for (const ent of EntityPicker(state, 'light').choices) {
-		presets.push({
+		presets[`light_set_${ent.id}`] = {
+			type: 'button',
 			category: 'Light',
-			label: `Light ${ent.label}`,
-			bank: {
-				style: 'text',
+			name: `Light ${ent.label}`,
+			style: {
 				text: `$(homeassistant-server:entity.${ent.id})`,
 				size: 'auto',
-				color: instance.rgb(255, 255, 255),
-				bgcolor: instance.rgb(0, 0, 0),
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 0, 0),
 			},
 			feedbacks: [
 				{
-					type: FeedbackId.LightOnState,
+					feedbackId: FeedbackId.LightOnState,
 					options: {
 						entity_id: ent.id,
 						state: true,
 					},
 					style: {
-						bgcolor: instance.rgb(0, 255, 0),
-						color: instance.rgb(0, 0, 0),
+						bgcolor: combineRgb(0, 255, 0),
+						color: combineRgb(0, 0, 0),
 					},
 				},
 			],
-			actions: [
+			steps: [
 				{
-					action: ActionId.SetLightOn,
-					options: {
-						entity_id: ent.id,
-						state: OnOffToggle.Toggle,
-					},
+					down: [
+						{
+							actionId: ActionId.SetLightOn,
+							options: {
+								entity_id: ent.id,
+								state: OnOffToggle.Toggle,
+							},
+						},
+					],
+					up: [],
 				},
 			],
-		})
+		}
 	}
 
 	for (const ent of EntityPicker(state, 'script').choices) {
-		presets.push({
+		presets[`script_execute_${ent.id}`] = {
+			type: 'button',
 			category: 'Script',
-			label: `Script ${ent.label}`,
-			bank: {
-				style: 'text',
+			name: `Script ${ent.label}`,
+			style: {
 				text: `$(homeassistant-server:entity.${ent.id})`,
 				size: 'auto',
-				color: instance.rgb(255, 255, 255),
-				bgcolor: instance.rgb(0, 0, 0),
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 0, 0),
 			},
 			feedbacks: [],
-			actions: [
+			steps: [
 				{
-					action: ActionId.ExecuteScript,
-					options: {
-						entity_id: ent.id,
-					},
+					down: [
+						{
+							actionId: ActionId.ExecuteScript,
+							options: {
+								entity_id: ent.id,
+							},
+						},
+					],
+					up: [],
 				},
 			],
-		})
+		}
 	}
 
 	for (const ent of EntityPicker(state, 'button').choices) {
-		presets.push({
+		presets[`button_press_${ent.id}`] = {
+			type: 'button',
 			category: 'Button',
-			label: `Button ${ent.label}`,
-			bank: {
-				style: 'text',
+			name: `Button ${ent.label}`,
+			style: {
 				text: `$(homeassistant-server:entity.${ent.id})`,
 				size: 'auto',
-				color: instance.rgb(255, 255, 255),
-				bgcolor: instance.rgb(0, 0, 0),
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 0, 0),
 			},
 			feedbacks: [],
-			actions: [
+			steps: [
 				{
-					action: ActionId.PressButton,
-					options: {
-						entity_id: ent.id,
-					},
+					down: [
+						{
+							actionId: ActionId.PressButton,
+							options: {
+								entity_id: ent.id,
+							},
+						},
+					],
+					up: [],
 				},
 			],
-		})
+		}
 	}
 
 	for (const ent of EntityPicker(state, 'scene').choices) {
-		presets.push({
+		presets[`scene_activate_${ent.id}`] = {
+			type: 'button',
 			category: 'Scene',
-			label: `Scene ${ent.label}`,
-			bank: {
-				style: 'text',
+			name: `Scene ${ent.label}`,
+			style: {
 				text: `$(homeassistant-server:entity.${ent.id})`,
 				size: 'auto',
-				color: instance.rgb(255, 255, 255),
-				bgcolor: instance.rgb(0, 0, 0),
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 0, 0),
 			},
 			feedbacks: [],
-			actions: [
+			steps: [
 				{
-					action: ActionId.ActivateScene,
-					options: {
-						entity_id: ent.id,
-					},
+					down: [
+						{
+							actionId: ActionId.ActivateScene,
+							options: {
+								entity_id: ent.id,
+							},
+						},
+					],
+					up: [],
 				},
 			],
-		})
+		}
 	}
 
 	for (const ent of EntityPicker(state, 'group').choices) {
-		presets.push({
+		presets[`group_set_on_${ent.id}`] = {
+			type: 'button',
 			category: 'Group',
-			label: `Group ${ent.label}`,
-			bank: {
-				style: 'text',
+			name: `Group ${ent.label}`,
+			style: {
 				text: `$(homeassistant-server:entity.${ent.id})`,
 				size: 'auto',
-				color: instance.rgb(255, 255, 255),
-				bgcolor: instance.rgb(0, 0, 0),
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 0, 0),
 			},
 			feedbacks: [
 				{
-					type: FeedbackId.GroupOnState,
+					feedbackId: FeedbackId.GroupOnState,
 					options: {
 						entity_id: ent.id,
 						state: true,
 					},
 					style: {
-						bgcolor: instance.rgb(0, 255, 0),
-						color: instance.rgb(0, 0, 0),
+						bgcolor: combineRgb(0, 255, 0),
+						color: combineRgb(0, 0, 0),
 					},
 				},
 			],
-			actions: [
+			steps: [
 				{
-					action: ActionId.SetGroupOn,
-					options: {
-						entity_id: ent.id,
-						state: OnOffToggle.Toggle,
-					},
+					down: [
+						{
+							actionId: ActionId.SetGroupOn,
+							options: {
+								entity_id: ent.id,
+								state: OnOffToggle.Toggle,
+							},
+						},
+					],
+					up: [],
 				},
 			],
-		})
+		}
 	}
 
 	return presets

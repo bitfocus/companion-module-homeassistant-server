@@ -2,3 +2,5 @@
 dist/
 *.log
 .idea/
+pkg
+pkg.tgz

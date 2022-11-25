@@ -1,0 +1,26 @@
+{
+	"id": "homeassistant-server",
+	"name": "homeassistant-server",
+	"shortname": "homeassistant-server",
+	"description": "Home Assistant Server",
+	"version": "0.8.1",
+	"license": "MIT",
+	"repository": "git+https://github.com/bitfocus/companion-module-homeassistant-server.git",
+	"bugs": "https://github.com/bitfocus/companion-module-homeassistant-server/issues",
+	"maintainers": [
+		{
+			"name": "Julian Waller",
+			"email": "git@julusian.co.uk"
+		}
+	],
+	"legacyIds": [],
+	"runtime": {
+		"type": "node14",
+		"api": "nodejs-ipc",
+		"apiVersion": "0.0.0",
+		"entrypoint": "../dist/index.js"
+	},
+	"manufacturer": "Home Assistant",
+	"products": ["Server"],
+	"keywords": ["Generic"]
+}
