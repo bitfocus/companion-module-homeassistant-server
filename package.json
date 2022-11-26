@@ -1,6 +1,6 @@
 {
 	"name": "homeassistant-server",
-	"version": "1.0.0-0",
+	"version": "1.0.0-1",
 	"main": "dist/index.js",
 	"scripts": {
 		"prepare": "husky install",
@@ -21,15 +21,15 @@
 		]
 	},
 	"engines": {
-		"node": "^14 || ^16 || ^18"
+		"node": "^18.12"
 	},
 	"dependencies": {
-		"@companion-module/base": "~0.5.1",
+		"@companion-module/base": "~0.6.1",
 		"home-assistant-js-websocket": "^8.0.0",
 		"ws": "^8.11.0"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^0.3.3",
+		"@companion-module/tools": "^0.4.1",
 		"@types/node": "^18.11.9",
 		"@types/ws": "^8.5.3",
 		"husky": "^8.0.1",

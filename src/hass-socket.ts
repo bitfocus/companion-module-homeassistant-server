@@ -9,7 +9,7 @@ https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/so
 
 import { InstanceBase, InstanceStatus } from '@companion-module/base'
 import * as ha from 'home-assistant-js-websocket'
-import * as WebSocket from 'ws'
+import WebSocket from 'ws'
 
 export function hassErrorToString(e: number): string {
 	switch (e) {
