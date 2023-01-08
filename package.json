@@ -24,7 +24,7 @@
 		"node": "^18.12"
 	},
 	"dependencies": {
-		"@companion-module/base": "~0.6.1",
+		"@companion-module/base": "~1.0.2",
 		"home-assistant-js-websocket": "^8.0.0",
 		"ws": "^8.11.0"
 	},
