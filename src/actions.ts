@@ -325,8 +325,7 @@ export function GetActionsList(
 					if (selectedEntities.length > 0) {
 						if (serviceDefinition.fields.entity_id) {
 							const entityIdSelector = serviceDefinition.fields.entity_id.selector as any | undefined
-							const selectorSupportsMultipleEntities =
-								entityIdSelector && entityIdSelector.entity && entityIdSelector.entity.multiple
+							const selectorSupportsMultipleEntities = entityIdSelector?.entity?.multiple
 
 							if (selectedEntities.length > 1 && !selectorSupportsMultipleEntities) {
 								throw new Error(`The service ${evt.options.service} only supports a single entity_id`)
