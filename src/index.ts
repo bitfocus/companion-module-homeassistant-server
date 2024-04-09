@@ -8,15 +8,15 @@ import {
 	HassServices,
 	createLongLivedTokenAuth,
 } from 'home-assistant-js-websocket'
-import { GetActionsList } from './actions'
-import { DeviceConfig, GetConfigFields } from './config'
-import { FeedbackId, GetFeedbacksList } from './feedback'
-import { createSocket, hassErrorToString } from './hass-socket'
-import { GetPresetsList } from './presets'
-import { InitVariables, updateVariables } from './variables'
+import { GetActionsList } from './actions.js'
+import { type DeviceConfig, GetConfigFields } from './config.js'
+import { FeedbackId, GetFeedbacksList } from './feedback.js'
+import { createSocket, hassErrorToString } from './hass-socket.js'
+import { GetPresetsList } from './presets.js'
+import { InitVariables, updateVariables } from './variables.js'
 import { InstanceBase, InstanceStatus, runEntrypoint, SomeCompanionConfigField } from '@companion-module/base'
-import { UpgradeScripts } from './upgrades'
-import { stripTrailingSlash } from './util'
+import { UpgradeScripts } from './upgrades.js'
+import { stripTrailingSlash } from './util.js'
 
 const RECONNECT_INTERVAL = 5000
 

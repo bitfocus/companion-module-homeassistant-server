@@ -1,12 +1,12 @@
-import { Connection, HassEntities, HassServices, HassServiceTarget } from 'home-assistant-js-websocket'
-import {
+import type { Connection, HassEntities, HassServices, HassServiceTarget } from 'home-assistant-js-websocket'
+import type {
 	CompanionActionEvent,
 	CompanionActionDefinitions,
 	CompanionActionDefinition,
 	DropdownChoice,
 } from '@companion-module/base'
-import { EntityMultiplePicker, OnOffTogglePicker } from './choices'
-import { OnOffToggle } from './util'
+import { EntityMultiplePicker, OnOffTogglePicker } from './choices.js'
+import { OnOffToggle } from './util.js'
 
 export enum ActionId {
 	SetSwitch = 'set_switch',
