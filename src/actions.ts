@@ -1,4 +1,10 @@
-import type { Connection, HassEntities, HassServices, HassServiceTarget } from 'home-assistant-js-websocket'
+import {
+	callService,
+	type Connection,
+	type HassEntities,
+	type HassServices,
+	type HassServiceTarget,
+} from 'home-assistant-js-websocket'
 import type {
 	CompanionActionEvent,
 	CompanionActionDefinitions,
@@ -29,8 +35,9 @@ export enum ActionId {
 export function GetActionsList(
 	getProps: () => { state: HassEntities; services: HassServices; client: Connection | undefined }
 ): CompanionActionDefinitions {
-	const entityOnOff = (opt: CompanionActionEvent['options']): void => {
+	const entityOnOff = async (opt: CompanionActionEvent['options']): Promise<void> => {
 		const { client } = getProps()
+		if (!client) return
 
 		let service: string
 		switch (opt.state as OnOffToggle) {
@@ -45,13 +52,8 @@ export function GetActionsList(
 				break
 		}
 
-		client?.sendMessage({
-			type: 'call_service',
-			domain: 'homeassistant',
-			service: service,
-			service_data: {
-				entity_id: opt.entity_id,
-			},
+		await callService(client, 'homeassistant', service, {
+			entity_id: opt.entity_id,
 		})
 	}
 
@@ -73,17 +75,17 @@ export function GetActionsList(
 		[ActionId.SetSwitch]: {
 			name: 'Set switch state',
 			options: [EntityMultiplePicker(initialState, 'switch'), OnOffTogglePicker()],
-			callback: (evt): void => entityOnOff(evt.options),
+			callback: async (evt) => entityOnOff(evt.options),
 		},
 		[ActionId.SetInputBoolean]: {
 			name: 'Set input_boolean state',
 			options: [EntityMultiplePicker(initialState, 'input_boolean'), OnOffTogglePicker()],
-			callback: (evt): void => entityOnOff(evt.options),
+			callback: async (evt) => entityOnOff(evt.options),
 		},
 		[ActionId.SetLightOn]: {
 			name: 'Set light on/off state',
 			options: [pickerLights, OnOffTogglePicker()],
-			callback: (evt): void => entityOnOff(evt.options),
+			callback: async (evt) => entityOnOff(evt.options),
 		},
 		[ActionId.SetLightPercent]: {
 			name: 'Set light brightness (percentage)',
@@ -100,17 +102,13 @@ export function GetActionsList(
 					range: true,
 				},
 			],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
+				if (!client) return
 
-				client?.sendMessage({
-					type: 'call_service',
-					domain: 'light',
-					service: 'turn_on',
-					service_data: {
-						entity_id: evt.options.entity_id,
-						brightness_pct: Number(evt.options.pct),
-					},
+				await callService(client, 'light', 'turn_on', {
+					entity_id: evt.options.entity_id,
+					brightness_pct: Number(evt.options.pct),
 				})
 			},
 		},
@@ -128,127 +126,97 @@ export function GetActionsList(
 					step: 1,
 				},
 			],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
+				if (!client) return
 
-				client?.sendMessage({
-					type: 'call_service',
-					domain: 'light',
-					service: 'turn_on',
-					service_data: {
-						entity_id: evt.options.entity_id,
-						brightness_step_pct: Number(evt.options.pct),
-					},
+				await callService(client, 'light', 'turn_on', {
+					entity_id: evt.options.entity_id,
+					brightness_step_pct: Number(evt.options.pct),
 				})
 			},
 		},
 		[ActionId.ExecuteScript]: {
 			name: 'Execute script',
 			options: [EntityMultiplePicker(initialState, 'script')],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
-				client?.sendMessage({
-					type: 'call_service',
-					domain: 'homeassistant',
-					service: 'turn_on',
-					service_data: {
-						entity_id: evt.options.entity_id,
-					},
+				if (!client) return
+
+				await callService(client, 'homeassistant', 'turn_on', {
+					entity_id: evt.options.entity_id,
 				})
 			},
 		},
 		[ActionId.PressButton]: {
 			name: 'Press button',
 			options: [EntityMultiplePicker(initialState, 'button')],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
-				client?.sendMessage({
-					type: 'call_service',
-					domain: 'button',
-					service: 'press',
-					service_data: {
-						entity_id: evt.options.entity_id,
-					},
+				if (!client) return
+
+				await callService(client, 'button', 'press', {
+					entity_id: evt.options.entity_id,
 				})
 			},
 		},
 		[ActionId.ActivateScene]: {
 			name: 'Activate scene',
 			options: [EntityMultiplePicker(initialState, 'scene')],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
+				if (!client) return
 
-				client?.sendMessage({
-					type: 'call_service',
-					domain: 'scene',
-					service: 'turn_on',
-					service_data: {
-						entity_id: evt.options.entity_id,
-					},
+				await callService(client, 'scene', 'turn_on', {
+					entity_id: evt.options.entity_id,
 				})
 			},
 		},
 		[ActionId.InputSelectFirst]: {
 			name: 'Input Select: First',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
+				if (!client) return
 
-				client?.sendMessage({
-					type: 'call_service',
-					domain: 'input_select',
-					service: 'select_first',
-					service_data: {
-						entity_id: evt.options.entity_id,
-					},
+				await callService(client, 'input_select', 'select_first', {
+					entity_id: evt.options.entity_id,
 				})
 			},
 		},
 		[ActionId.InputSelectLast]: {
 			name: 'Input Select: Last',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
+				if (!client) return
 
-				client?.sendMessage({
-					type: 'call_service',
-					domain: 'input_select',
-					service: 'select_last',
-					service_data: {
-						entity_id: evt.options.entity_id,
-					},
+				await callService(client, 'input_select', 'select_last', {
+					entity_id: evt.options.entity_id,
 				})
 			},
 		},
 		[ActionId.InputSelectNext]: {
 			name: 'Input Select: Next',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
+				if (!client) return
 
-				client?.sendMessage({
-					type: 'call_service',
-					domain: 'input_select',
-					service: 'select_next',
-					service_data: {
-						entity_id: evt.options.entity_id,
-					},
+				await callService(client, 'input_select', 'select_next', {
+					entity_id: evt.options.entity_id,
 				})
 			},
 		},
 		[ActionId.InputSelectPrevious]: {
 			name: 'Input Select: Previous',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
+				if (!client) return
 
-				client?.sendMessage({
-					type: 'call_service',
-					domain: 'input_select',
-					service: 'select_previous',
-					service_data: {
-						entity_id: evt.options.entity_id,
-					},
+				await callService(client, 'input_select', 'select_previous', {
+					entity_id: evt.options.entity_id,
 				})
 			},
 		},
@@ -263,24 +231,20 @@ export function GetActionsList(
 					label: 'Option',
 				},
 			],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
+				if (!client) return
 
-				client?.sendMessage({
-					type: 'call_service',
-					domain: 'input_select',
-					service: 'select_option',
-					service_data: {
-						entity_id: evt.options.entity_id,
-						option: evt.options.option,
-					},
+				await callService(client, 'input_select', 'select_option', {
+					entity_id: evt.options.entity_id,
+					option: evt.options.option,
 				})
 			},
 		},
 		[ActionId.SetGroupOn]: {
 			name: 'Set group on/off state',
 			options: [EntityMultiplePicker(initialState, 'group'), OnOffTogglePicker()],
-			callback: (evt): void => entityOnOff(evt.options),
+			callback: async (evt) => entityOnOff(evt.options),
 		},
 		[ActionId.CallService]: {
 			name: 'Call Service',
@@ -303,8 +267,9 @@ export function GetActionsList(
 					label: 'Payload',
 				},
 			],
-			callback: (evt): void => {
+			callback: async (evt) => {
 				const { client } = getProps()
+				if (!client) return
 
 				try {
 					const payload = JSON.parse(evt.options.payload as string)
@@ -313,13 +278,7 @@ export function GetActionsList(
 					const [domain, service] = `${evt.options.service}`.split('.', 2)
 					const serviceDefinition = initialServices[domain][service]
 
-					const message = {
-						type: 'call_service',
-						domain,
-						service,
-						service_data: payload,
-						target: {} as HassServiceTarget,
-					}
+					const target: HassServiceTarget = {}
 
 					const selectedEntities = evt.options.entity_id as string[]
 					if (selectedEntities.length > 0) {
@@ -331,15 +290,15 @@ export function GetActionsList(
 								throw new Error(`The service ${evt.options.service} only supports a single entity_id`)
 							}
 
-							message.service_data.entity_id = selectorSupportsMultipleEntities ? selectedEntities : selectedEntities[0]
+							payload.entity_id = selectorSupportsMultipleEntities ? selectedEntities : selectedEntities[0]
 						}
 
 						if (serviceDefinition.target) {
-							message.target.entity_id = selectedEntities
+							target.entity_id = selectedEntities
 						}
 					}
 
-					client?.sendMessage(message)
+					await callService(client, domain, service, payload, target)
 				} catch (e) {
 					console.debug(`Call service failed: ${e}`)
 				}
