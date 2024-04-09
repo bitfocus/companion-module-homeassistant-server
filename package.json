@@ -3,21 +3,24 @@
 	"version": "1.0.0",
 	"main": "dist/index.js",
 	"scripts": {
-		"prepare": "husky install",
-		"build": "rimraf dist && yarn build:main",
+		"prepare": "husky",
+		"build": "rimraf dist && run build:main",
 		"build:main": "tsc -p tsconfig.build.json",
 		"dev": "tsc -p tsconfig.build.json --watch",
-		"lint:raw": "eslint --ext .ts --ext .js --ignore-pattern dist --ignore-pattern pkg",
-		"lint": "yarn lint:raw ."
+		"lint:raw": "run eslint --ext .ts --ext .js --ignore-pattern dist --ignore-pattern pkg",
+		"lint": "run lint:raw .",
+		"dist": "yarn companion-module-build",
+		"eslint": "./node_modules/.bin/eslint",
+		"prettier": "./node_modules/.bin/prettier"
 	},
 	"license": "MIT",
 	"prettier": "@companion-module/tools/.prettierrc.json",
 	"lint-staged": {
 		"*.{css,json,md,scss}": [
-			"prettier --write"
+			"run prettier --write"
 		],
 		"*.{ts,tsx,js,jsx}": [
-			"yarn lint:raw --fix"
+			"run lint:raw --fix"
 		]
 	},
 	"engines": {
@@ -25,17 +28,17 @@
 	},
 	"dependencies": {
 		"@companion-module/base": "~1.7.0",
-		"home-assistant-js-websocket": "^8.0.0",
+		"home-assistant-js-websocket": "^8.2.0",
 		"ws": "^8.16.0"
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^1.5.0",
 		"@types/node": "^18.19.31",
 		"@types/ws": "^8.5.10",
-		"husky": "^8.0.1",
-		"lint-staged": "^13.0.3",
+		"husky": "^9.0.11",
+		"lint-staged": "^15.2.2",
 		"rimraf": "^5.0.5",
-		"typescript": "~5.4"
+		"typescript": "~5.1.6"
 	},
 	"repository": {
 		"type": "git",
