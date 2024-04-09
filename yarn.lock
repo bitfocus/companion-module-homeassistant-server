@@ -1795,10 +1795,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"home-assistant-js-websocket@npm:^8.2.0":
-  version: 8.2.0
-  resolution: "home-assistant-js-websocket@npm:8.2.0"
-  checksum: 10c0/9a1f1f5cb39ce0629653347d5ae31a14f14742596c15fea7bd72f4c0ee4ce4613b1172b4f4df52f293b4e5aeb3b5ead75f395d5fe5c4785193e7d00f8355ef5a
+"home-assistant-js-websocket@npm:^9.2.1":
+  version: 9.2.1
+  resolution: "home-assistant-js-websocket@npm:9.2.1"
+  checksum: 10c0/e68a4faa709ea0bdcd91d5144e435a58a73a66f15cff7597e00fd6ac658efa5d44e5f0c9980184ffc3a4c860d110adfba94db3feadcb8ae8deda85a42baa695e
   languageName: node
   linkType: hard
 
@@ -1810,7 +1810,7 @@ __metadata:
     "@companion-module/tools": "npm:^1.5.0"
     "@types/node": "npm:^18.19.31"
     "@types/ws": "npm:^8.5.10"
-    home-assistant-js-websocket: "npm:^8.2.0"
+    home-assistant-js-websocket: "npm:^9.2.1"
     husky: "npm:^9.0.11"
     lint-staged: "npm:^15.2.2"
     rimraf: "npm:^5.0.5"
