@@ -1,4 +1,4 @@
-import type { Connection, HassEntities, HassServices } from 'home-assistant-js-websocket'
+import type { Connection, HassEntities, HassServices, HassServiceTarget } from 'home-assistant-js-websocket'
 import type {
 	CompanionActionEvent,
 	CompanionActionDefinitions,
@@ -310,17 +310,36 @@ export function GetActionsList(
 					const payload = JSON.parse(evt.options.payload as string)
 
 					// Split the domain off of the service name
-					const service = `${evt.options.service}`.split('.', 2)
+					const [domain, service] = `${evt.options.service}`.split('.', 2)
+					const serviceDefinition = initialServices[domain][service]
 
-					client?.sendMessage({
+					const message = {
 						type: 'call_service',
-						domain: service[0],
-						service: service[1],
-						service_data: {
-							...payload,
-							entity_id: evt.options.entity_id,
-						},
-					})
+						domain,
+						service,
+						service_data: payload,
+						target: {} as HassServiceTarget,
+					}
+
+					const selectedEntities = evt.options.entity_id as string[]
+					if (selectedEntities.length > 0) {
+						if (serviceDefinition.fields.entity_id) {
+							const entityIdSelector = serviceDefinition.fields.entity_id.selector as any | undefined
+							const selectorSupportsMultipleEntities = entityIdSelector?.entity?.multiple
+
+							if (selectedEntities.length > 1 && !selectorSupportsMultipleEntities) {
+								throw new Error(`The service ${evt.options.service} only supports a single entity_id`)
+							}
+
+							message.service_data.entity_id = selectorSupportsMultipleEntities ? selectedEntities : selectedEntities[0]
+						}
+
+						if (serviceDefinition.target) {
+							message.target.entity_id = selectedEntities
+						}
+					}
+
+					client?.sendMessage(message)
 				} catch (e) {
 					console.debug(`Call service failed: ${e}`)
 				}
