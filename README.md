@@ -10,6 +10,16 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### v1.0.1
+
+- Various code improvements
+- Correctly send entity_id with CallService action
+
+### v1.0.0
+
+- Improve connection reliability
+- Update for Companion 3
+
 ### v0.8.1
 
 - 'Call any service' lists services reported by home-assistant
