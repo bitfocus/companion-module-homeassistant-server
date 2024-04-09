@@ -1,9 +1,13 @@
-import { combineRgb, CompanionPresetDefinitions, CompanionButtonPresetDefinition } from '@companion-module/base'
-import { HassEntities } from 'home-assistant-js-websocket'
-import { ActionId } from './actions'
-import { EntityPicker } from './choices'
-import { FeedbackId } from './feedback'
-import { OnOffToggle } from './util'
+import {
+	combineRgb,
+	type CompanionPresetDefinitions,
+	type CompanionButtonPresetDefinition,
+} from '@companion-module/base'
+import type { HassEntities } from 'home-assistant-js-websocket'
+import { ActionId } from './actions.js'
+import { EntityPicker } from './choices.js'
+import { FeedbackId } from './feedback.js'
+import { OnOffToggle } from './util.js'
 
 interface CompanionPresetExt extends CompanionButtonPresetDefinition {
 	feedbacks: Array<

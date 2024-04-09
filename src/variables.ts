@@ -1,7 +1,7 @@
-import { CompanionVariableDefinition, CompanionVariableValues, InstanceBase } from '@companion-module/base'
-import { HassEntities } from 'home-assistant-js-websocket'
-import { LIGHT_MAX_BRIGHTNESS } from './choices'
-import { DeviceConfig } from './config'
+import type { CompanionVariableDefinition, CompanionVariableValues, InstanceBase } from '@companion-module/base'
+import type { HassEntities } from 'home-assistant-js-websocket'
+import { LIGHT_MAX_BRIGHTNESS } from './choices.js'
+import type { DeviceConfig } from './config.js'
 
 export function updateVariables(instance: InstanceBase<DeviceConfig>, state: HassEntities): void {
 	const variables: CompanionVariableValues = {}

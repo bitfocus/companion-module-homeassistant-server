@@ -1,6 +1,6 @@
-import { CompanionStaticUpgradeScript, CreateConvertToBooleanFeedbackUpgradeScript } from '@companion-module/base'
-import { DeviceConfig } from './config'
-import { FeedbackId } from './feedback'
+import { type CompanionStaticUpgradeScript, CreateConvertToBooleanFeedbackUpgradeScript } from '@companion-module/base'
+import type { DeviceConfig } from './config.js'
+import { FeedbackId } from './feedback.js'
 
 const BooleanFeedbackUpgradeMap: {
 	[id in FeedbackId]?: true

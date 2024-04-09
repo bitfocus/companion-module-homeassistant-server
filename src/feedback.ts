@@ -4,8 +4,8 @@ import {
 	combineRgb,
 	CompanionFeedbackBooleanEvent,
 } from '@companion-module/base'
-import { HassEntities } from 'home-assistant-js-websocket'
-import { EntityPicker, OnOffPicker } from './choices'
+import type { HassEntities } from 'home-assistant-js-websocket'
+import { EntityPicker, OnOffPicker } from './choices.js'
 
 export enum FeedbackId {
 	SwitchState = 'switch_state',

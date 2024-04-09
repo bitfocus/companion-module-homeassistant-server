@@ -4,9 +4,8 @@ import {
 	CompanionInputFieldMultiDropdown,
 	DropdownChoice,
 } from '@companion-module/base'
-import { HassEntities } from 'home-assistant-js-websocket'
-
-import { OnOffToggle } from './util'
+import type { HassEntities } from 'home-assistant-js-websocket'
+import { OnOffToggle } from './util.js'
 
 export const LIGHT_MAX_BRIGHTNESS = 255
 
