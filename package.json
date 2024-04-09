@@ -40,5 +40,6 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-homeassistant-server.git"
-	}
+	},
+	"packageManager": "yarn@4.1.1"
 }
