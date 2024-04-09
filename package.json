@@ -24,18 +24,18 @@
 		"node": "^18.12"
 	},
 	"dependencies": {
-		"@companion-module/base": "~1.0.2",
+		"@companion-module/base": "~1.7.0",
 		"home-assistant-js-websocket": "^8.0.0",
-		"ws": "^8.11.0"
+		"ws": "^8.16.0"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^0.4.1",
-		"@types/node": "^18.11.9",
-		"@types/ws": "^8.5.3",
+		"@companion-module/tools": "^1.5.0",
+		"@types/node": "^18.19.31",
+		"@types/ws": "^8.5.10",
 		"husky": "^8.0.1",
 		"lint-staged": "^13.0.3",
-		"rimraf": "^3.0.2",
-		"typescript": "~4.9"
+		"rimraf": "^5.0.5",
+		"typescript": "~5.4"
 	},
 	"repository": {
 		"type": "git",
