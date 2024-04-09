@@ -1,10 +1,10 @@
 {
 	"name": "homeassistant-server",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"main": "dist/index.js",
 	"scripts": {
 		"prepare": "husky",
-		"build": "rimraf dist && run build:main",
+		"build": "rimraf dist && yarn build:main",
 		"build:main": "tsc -p tsconfig.build.json",
 		"dev": "tsc -p tsconfig.build.json --watch",
 		"lint:raw": "run eslint --ext .ts --ext .js --ignore-pattern dist --ignore-pattern pkg",
