@@ -4,7 +4,7 @@
 
 - In Home Assistant, navigate to your Profile page. This should be at the bottom left of the web interface, below the Notifications tab
 - In the Home Assistant Profile page, scroll to the very bottom to find the **Long-Lived Access Tokens** section.
-  ![Home Assistant Profile Page](src/images/ha-profile-page.png?raw=true 'Home Assistant Profile Page')
+  ![Home Assistant Profile Page](images/ha-profile-page.png?raw=true 'Home Assistant Profile Page')
 - Next, click "Create Token", give your token a name, and click "OK." Your access token should appear. Copy your token, then navigate to Companion.
 - In Companion, navigate to the Home Assistant Server module settings and paste your Access Token. Then, input your Home Assistant URL. _Note: This URL should include the port, which is 8123 by default (ex. `http://192.168.1.10:8123` or `http://homeassistant.local:8123`)_
 
