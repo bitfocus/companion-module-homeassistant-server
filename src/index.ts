@@ -30,7 +30,6 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 	private connecting: boolean
 	private unsubscribeEntities: UnsubscribeFunc | undefined
 	private unsubscribeServices: UnsubscribeFunc | undefined
-	private initDone: boolean
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -39,15 +38,12 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		this.connecting = false
 		this.state = []
 		this.services = {}
-		this.initDone = false
 		this.needsReconnect = false
 	}
 
 	// Override base types to make types stricter
 	public checkFeedbacks(...feedbackTypes: FeedbackId[]): void {
-		if (this.initDone) {
-			super.checkFeedbacks(...feedbackTypes)
-		}
+		super.checkFeedbacks(...feedbackTypes)
 	}
 
 	/**
@@ -95,11 +91,9 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		}
 		this.client = undefined
 
-		this.initDone = false
 		this.state = []
 		this.services = {}
 		// updateVariables(this, this.state) No need, there are no entities
-		this.checkFeedbacks()
 
 		this.tryConnect()
 	}
@@ -134,7 +128,6 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		this.client = undefined
 
 		this.needsReconnect = false
-		this.initDone = false
 		this.state = []
 		this.services = {}
 
@@ -225,7 +218,6 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 			newState.added.length > 0 || newState.removed.length > 0 || newState.friendlyNameChange.length > 0
 
 		this.state = newEntities
-		this.initDone = true
 
 		if (entitiesChanged) {
 			this.setPresetDefinitions(GetPresetsList(this.state))
