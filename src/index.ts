@@ -19,6 +19,7 @@ import { UpgradeScripts } from './upgrades.js'
 import { stripTrailingSlash } from './util.js'
 import { HassEntitiesWithChanges, entitiesColl } from './hass/entities.js'
 import { EntitySubscriptions } from './state.js'
+import debounceFn from 'debounce-fn'
 
 const RECONNECT_INTERVAL = 5000
 
@@ -34,6 +35,8 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 	private connecting: boolean
 	private unsubscribeEntities: UnsubscribeFunc | undefined
 	private unsubscribeServices: UnsubscribeFunc | undefined
+
+	private pendingState: HassEntitiesWithChanges | undefined
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -196,7 +199,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 				})
 
 				this.unsubscribeServices = subscribeServices(connection, this.processServicesChange.bind(this))
-				this.unsubscribeEntities = entitiesColl(connection).subscribe(this.processStateChange.bind(this))
+				this.unsubscribeEntities = entitiesColl(connection).subscribe(this.deboundProcessStateChange.bind(this))
 			})
 			.catch((e: number | string) => {
 				this.connecting = false
@@ -218,35 +221,86 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 			})
 	}
 
+	private deboundProcessStateChange = (newState: HassEntitiesWithChanges): void => {
+		if (!this.pendingState) {
+			this.pendingState = newState
+		} else {
+			// Perform an intelligent merge of the changes, factoring in how multiple updates should compound
+
+			this.pendingState.entities = newState.entities
+
+			for (const id of newState.added) {
+				this.pendingState.added.add(id)
+				this.pendingState.removed.delete(id)
+				this.pendingState.contentChanged.delete(id)
+				this.pendingState.friendlyNameChange.delete(id)
+			}
+
+			for (const id of newState.removed) {
+				this.pendingState.contentChanged.delete(id)
+				this.pendingState.friendlyNameChange.delete(id)
+				this.pendingState.added.delete(id)
+				this.pendingState.removed.add(id) // Be safe and always mark as removed, should be cheap to do this
+			}
+
+			for (const id of newState.contentChanged) {
+				if (!this.pendingState.added.has(id)) {
+					this.pendingState.contentChanged.add(id)
+					this.pendingState.removed.delete(id)
+				}
+			}
+			for (const id of newState.friendlyNameChange) {
+				if (!this.pendingState.added.has(id)) {
+					this.pendingState.friendlyNameChange.add(id)
+					this.pendingState.removed.delete(id)
+				}
+			}
+		}
+
+		this.processStateChange()
+	}
+
 	/**
 	 * Handle state changes
 	 * Note: This must not be debounced directly, as then the added/changed/removed will be incorrect
 	 */
-	private processStateChange = (newState: HassEntitiesWithChanges): void => {
-		const newEntities = Object.values(newState.entities).sort((a, b) => a.entity_id.localeCompare(b.entity_id))
-		this.state = newEntities
-		this.stateObj = newState.entities
+	private processStateChange = debounceFn(
+		(): void => {
+			const newState = this.pendingState
+			this.pendingState = undefined
+			if (!newState) return
 
-		const entitiesChanged =
-			newState.added.length > 0 || newState.removed.length > 0 || newState.friendlyNameChange.length > 0
-		if (entitiesChanged) {
-			this.setPresetDefinitions(GetPresetsList(this.state))
-			this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
-			this.setActionDefinitions(
-				GetActionsList(() => ({ state: this.state, client: this.client, services: this.services }))
-			)
-			InitVariables(this, this.state)
+			const newEntities = Object.values(newState.entities).sort((a, b) => a.entity_id.localeCompare(b.entity_id))
+			this.state = newEntities
+			this.stateObj = newState.entities
+
+			const entitiesChanged =
+				newState.added.size > 0 || newState.removed.size > 0 || newState.friendlyNameChange.size > 0
+			if (entitiesChanged) {
+				this.setPresetDefinitions(GetPresetsList(this.state))
+				this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
+				this.setActionDefinitions(
+					GetActionsList(() => ({ state: this.state, client: this.client, services: this.services }))
+				)
+				InitVariables(this, this.state)
+			}
+
+			updateVariables(this, newState)
+
+			this.#checkAffectedFeedbacks(newState)
+		},
+		{
+			wait: 10,
+			maxWait: 50,
+			before: false,
+			after: true,
 		}
-
-		updateVariables(this, newState)
-
-		this.#checkAffectedFeedbacks(newState)
-	}
+	)
 
 	#checkAffectedFeedbacks(newState: HassEntitiesWithChanges) {
 		const changedFeedbackInstanceIds = new Set<string>()
 
-		const checkEntityIds = (entityIds: string[]) => {
+		const checkEntityIds = (entityIds: Set<string>) => {
 			for (const entityId of entityIds) {
 				const instanceIds = this.entitySubscriptions.getFeedbackInstanceIds(entityId)
 				for (const instanceId of instanceIds) {

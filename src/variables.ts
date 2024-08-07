@@ -7,7 +7,7 @@ import { HassEntitiesWithChanges } from './hass/entities.js'
 export function updateVariables(instance: InstanceBase<DeviceConfig>, state: HassEntitiesWithChanges): void {
 	const variables: CompanionVariableValues = {}
 
-	const updateForIds = (ids: string[]): void => {
+	const updateForIds = (ids: Set<string>): void => {
 		for (const id of ids) {
 			const entity = state.entities[id]
 			if (!entity) continue

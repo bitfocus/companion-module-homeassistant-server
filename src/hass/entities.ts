@@ -47,10 +47,10 @@ interface StatesUpdates {
 function processEvent(store: Store<HassEntitiesWithChanges>, updates: StatesUpdates) {
 	const myNewState: HassEntitiesWithChanges = {
 		entities: { ...store.state?.entities },
-		added: [],
-		removed: [],
-		friendlyNameChange: [],
-		contentChanged: [],
+		added: new Set(),
+		removed: new Set(),
+		friendlyNameChange: new Set(),
+		contentChanged: new Set(),
 	}
 
 	if (updates.a) {
@@ -65,14 +65,14 @@ function processEvent(store: Store<HassEntitiesWithChanges>, updates: StatesUpda
 				last_changed: last_changed,
 				last_updated: newState.lu ? new Date(newState.lu * 1000).toISOString() : last_changed,
 			}
-			myNewState.added.push(entityId)
+			myNewState.added.add(entityId)
 		}
 	}
 
 	if (updates.r) {
 		for (const entityId of updates.r) {
 			delete myNewState.entities[entityId]
-			myNewState.removed.push(entityId)
+			myNewState.removed.add(entityId)
 		}
 	}
 
@@ -123,8 +123,8 @@ function processEvent(store: Store<HassEntitiesWithChanges>, updates: StatesUpda
 			}
 			myNewState.entities[entityId] = entityState
 
-			myNewState.contentChanged.push(entityId) // TODO - more granular?
-			if (oldAttributes.friendly_name !== attributes.friendly_name) myNewState.friendlyNameChange.push(entityId)
+			myNewState.contentChanged.add(entityId) // TODO - more granular?
+			if (oldAttributes.friendly_name !== attributes.friendly_name) myNewState.friendlyNameChange.add(entityId)
 		}
 	}
 
@@ -142,29 +142,29 @@ function legacyProcessEvent(store: Store<HassEntitiesWithChanges>, event: StateC
 
 	const myNewState: HassEntitiesWithChanges = {
 		entities: { ...state.entities },
-		added: [],
-		removed: [],
-		friendlyNameChange: [],
-		contentChanged: [],
+		added: new Set(),
+		removed: new Set(),
+		friendlyNameChange: new Set(),
+		contentChanged: new Set(),
 	}
 
 	const { entity_id, new_state } = event.data
 	if (new_state) {
 		const oldEntityState = state.entities[entity_id]
 		if (!oldEntityState) {
-			myNewState.added.push(entity_id)
+			myNewState.added.add(entity_id)
 		} else {
-			myNewState.contentChanged.push(entity_id)
+			myNewState.contentChanged.add(entity_id)
 
 			if (oldEntityState.attributes.friendly_name !== new_state.attributes.friendly_name) {
-				myNewState.friendlyNameChange.push(entity_id)
+				myNewState.friendlyNameChange.add(entity_id)
 			}
 		}
 
 		store.setState({ [new_state.entity_id]: new_state })
 	} else {
 		delete myNewState.entities[entity_id]
-		myNewState.removed.push(entity_id)
+		myNewState.removed.add(entity_id)
 
 		store.setState(myNewState, true)
 	}
@@ -180,10 +180,10 @@ async function legacyFetchEntities(conn: Connection): Promise<HassEntitiesWithCh
 
 	return {
 		entities,
-		added: Object.keys(entities),
-		removed: [],
-		friendlyNameChange: [],
-		contentChanged: [],
+		added: new Set(Object.keys(entities)),
+		removed: new Set(),
+		friendlyNameChange: new Set(),
+		contentChanged: new Set(),
 	}
 }
 
@@ -192,11 +192,11 @@ const legacySubscribeUpdates = async (conn: Connection, store: Store<HassEntitie
 
 export interface HassEntitiesWithChanges {
 	entities: HassEntities
-	added: string[]
-	removed: string[]
+	added: Set<string>
+	removed: Set<string>
 
-	friendlyNameChange: string[]
-	contentChanged: string[]
+	friendlyNameChange: Set<string>
+	contentChanged: Set<string>
 }
 
 export const entitiesColl = (conn: Connection): Collection<HassEntitiesWithChanges> =>
