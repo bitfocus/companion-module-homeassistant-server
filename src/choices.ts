@@ -4,7 +4,7 @@ import {
 	CompanionInputFieldMultiDropdown,
 	DropdownChoice,
 } from '@companion-module/base'
-import type { HassEntities } from 'home-assistant-js-websocket'
+import type { HassEntity } from 'home-assistant-js-websocket'
 import { OnOffToggle } from './util.js'
 
 export const LIGHT_MAX_BRIGHTNESS = 255
@@ -33,10 +33,8 @@ export function OnOffPicker(): CompanionInputFieldCheckbox {
 	}
 }
 
-function EntityOptions(state: HassEntities, prefix: string | undefined): DropdownChoice[] {
-	const entities = Object.values(state).filter(
-		(ent) => prefix === undefined || ent.entity_id.indexOf(`${prefix}.`) === 0
-	)
+function EntityOptions(state: HassEntity[], prefix: string | undefined): DropdownChoice[] {
+	const entities = state.filter((ent) => prefix === undefined || ent.entity_id.indexOf(`${prefix}.`) === 0)
 
 	return entities
 		.map((ent) => ({
@@ -50,7 +48,7 @@ function EntityOptions(state: HassEntities, prefix: string | undefined): Dropdow
 		})
 }
 
-export function EntityPicker(state: HassEntities, prefix: string | undefined): CompanionInputFieldDropdown {
+export function EntityPicker(state: HassEntity[], prefix: string | undefined): CompanionInputFieldDropdown {
 	const choices = EntityOptions(state, prefix)
 
 	return {
@@ -63,7 +61,7 @@ export function EntityPicker(state: HassEntities, prefix: string | undefined): C
 }
 
 export function EntityMultiplePicker(
-	state: HassEntities,
+	state: HassEntity[],
 	prefix: string | undefined
 ): CompanionInputFieldMultiDropdown {
 	const choices = EntityOptions(state, prefix)

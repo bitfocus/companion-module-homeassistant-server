@@ -1,12 +1,11 @@
 import {
 	Connection,
 	createConnection,
-	HassEntities,
-	subscribeEntities,
 	UnsubscribeFunc,
 	subscribeServices,
 	HassServices,
 	createLongLivedTokenAuth,
+	HassEntity,
 } from 'home-assistant-js-websocket'
 import { GetActionsList } from './actions.js'
 import { type DeviceConfig, GetConfigFields } from './config.js'
@@ -17,6 +16,7 @@ import { InitVariables, updateVariables } from './variables.js'
 import { InstanceBase, InstanceStatus, runEntrypoint, SomeCompanionConfigField } from '@companion-module/base'
 import { UpgradeScripts } from './upgrades.js'
 import { stripTrailingSlash } from './util.js'
+import { HassEntitiesWithChanges, entitiesColl } from './hass/entities.js'
 
 const RECONNECT_INTERVAL = 5000
 
@@ -24,7 +24,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 	public needsReconnect: boolean
 
 	private config: DeviceConfig
-	private state: HassEntities
+	private state: HassEntity[]
 	private services: HassServices
 	private client: Connection | undefined
 	private connecting: boolean
@@ -37,7 +37,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 		this.config = {}
 		this.connecting = false
-		this.state = {}
+		this.state = []
 		this.services = {}
 		this.initDone = false
 		this.needsReconnect = false
@@ -65,7 +65,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		this.setActionDefinitions(
 			GetActionsList(() => ({ state: this.state, services: this.services, client: this.client }))
 		)
-		updateVariables(this, this.state)
+		// updateVariables(this, this.state) No need, there are no entities
 	}
 
 	/**
@@ -96,9 +96,9 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		this.client = undefined
 
 		this.initDone = false
-		this.state = {}
+		this.state = []
 		this.services = {}
-		updateVariables(this, this.state)
+		// updateVariables(this, this.state) No need, there are no entities
 		this.checkFeedbacks()
 
 		this.tryConnect()
@@ -135,7 +135,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 		this.needsReconnect = false
 		this.initDone = false
-		this.state = {}
+		this.state = []
 		this.services = {}
 
 		this.log('debug', `destroy ${this.id}`)
@@ -192,7 +192,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 				})
 
 				this.unsubscribeServices = subscribeServices(connection, this.processServicesChange.bind(this))
-				this.unsubscribeEntities = subscribeEntities(connection, this.processStateChange.bind(this))
+				this.unsubscribeEntities = entitiesColl(connection).subscribe(this.processStateChange.bind(this))
 			})
 			.catch((e: number | string) => {
 				this.connecting = false
@@ -216,11 +216,15 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 	/**
 	 * Handle state changes
+	 * Note: This mustn't be debounced directly, as then the added/changed/removed will be incorrect
 	 */
-	private processStateChange(newState: HassEntities): void {
-		const entitiesChanged = getStateInfoString(this.state) !== getStateInfoString(newState)
+	private processStateChange = (newState: HassEntitiesWithChanges): void => {
+		const newEntities = Object.values(newState.entities).sort((a, b) => a.entity_id.localeCompare(b.entity_id))
 
-		this.state = newState
+		const entitiesChanged =
+			newState.added.length > 0 || newState.removed.length > 0 || newState.friendlyNameChange.length > 0
+
+		this.state = newEntities
 		this.initDone = true
 
 		if (entitiesChanged) {
@@ -232,7 +236,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 			InitVariables(this, this.state)
 		}
 
-		updateVariables(this, this.state)
+		updateVariables(this, newState)
 
 		this.checkFeedbacks()
 	}
@@ -244,19 +248,6 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 			GetActionsList(() => ({ state: this.state, client: this.client, services: this.services }))
 		)
 	}
-}
-
-function getStateInfoString(state: HassEntities): string {
-	return JSON.stringify(
-		Object.values(state)
-			.map((v) =>
-				JSON.stringify({
-					entity_id: v.entity_id,
-					friendly_name: v.attributes.friendly_name,
-				})
-			)
-			.sort()
-	)
 }
 
 runEntrypoint(ControllerInstance, UpgradeScripts)

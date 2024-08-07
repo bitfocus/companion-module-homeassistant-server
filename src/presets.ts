@@ -3,7 +3,7 @@ import {
 	type CompanionPresetDefinitions,
 	type CompanionButtonPresetDefinition,
 } from '@companion-module/base'
-import type { HassEntities } from 'home-assistant-js-websocket'
+import type { HassEntity } from 'home-assistant-js-websocket'
 import { ActionId } from './actions.js'
 import { EntityPicker } from './choices.js'
 import { FeedbackId } from './feedback.js'
@@ -32,7 +32,7 @@ interface CompanionPresetDefinitionsExt {
 	[id: string]: CompanionPresetExt | undefined
 }
 
-export function GetPresetsList(state: HassEntities): CompanionPresetDefinitions {
+export function GetPresetsList(state: HassEntity[]): CompanionPresetDefinitions {
 	const presets: CompanionPresetDefinitionsExt = {}
 
 	for (const ent of EntityPicker(state, 'switch').choices) {

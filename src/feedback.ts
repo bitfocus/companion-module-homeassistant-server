@@ -4,7 +4,7 @@ import {
 	combineRgb,
 	CompanionFeedbackBooleanEvent,
 } from '@companion-module/base'
-import type { HassEntities } from 'home-assistant-js-websocket'
+import type { HassEntity } from 'home-assistant-js-websocket'
 import { EntityPicker, OnOffPicker } from './choices.js'
 
 export enum FeedbackId {
@@ -16,10 +16,10 @@ export enum FeedbackId {
 	GroupOnState = 'group_on_state',
 }
 
-export function GetFeedbacksList(getState: () => HassEntities): CompanionFeedbackDefinitions {
+export function GetFeedbacksList(getState: () => HassEntity[]): CompanionFeedbackDefinitions {
 	const checkEntityOnOffState = (feedback: CompanionFeedbackBooleanEvent): boolean => {
 		const state = getState()
-		const entity = state[String(feedback.options.entity_id)]
+		const entity = state.find((e) => e.entity_id === String(feedback.options.entity_id))
 		if (entity) {
 			const isOn = entity.state === 'on'
 			const targetOn = !!feedback.options.state
@@ -93,7 +93,7 @@ export function GetFeedbacksList(getState: () => HassEntities): CompanionFeedbac
 			},
 			callback: (feedback): boolean => {
 				const state = getState()
-				const entity = state[String(feedback.options.entity_id)]
+				const entity = state.find((e) => e.entity_id === String(feedback.options.entity_id))
 				if (entity) {
 					return entity.state === feedback.options.option
 				}
