@@ -27,22 +27,22 @@
 		"node": "^18.12"
 	},
 	"dependencies": {
-		"@companion-module/base": "~1.7.0",
-		"home-assistant-js-websocket": "^9.2.1",
-		"ws": "^8.17.1"
+		"@companion-module/base": "~1.7.1",
+		"home-assistant-js-websocket": "^9.4.0",
+		"ws": "^8.18.0"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^1.5.0",
-		"@types/node": "^18.19.31",
-		"@types/ws": "^8.5.10",
-		"husky": "^9.0.11",
-		"lint-staged": "^15.2.2",
-		"rimraf": "^5.0.5",
+		"@companion-module/tools": "^1.5.1",
+		"@types/node": "^18.19.43",
+		"@types/ws": "^8.5.12",
+		"husky": "^9.1.4",
+		"lint-staged": "^15.2.8",
+		"rimraf": "^5.0.10",
 		"typescript": "~5.1.6"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-homeassistant-server.git"
 	},
-	"packageManager": "yarn@4.1.1"
+	"packageManager": "yarn@4.4.0"
 }
