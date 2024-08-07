@@ -1067,6 +1067,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"debounce-fn@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "debounce-fn@npm:6.0.0"
+  dependencies:
+    mimic-function: "npm:^5.0.0"
+  checksum: 10c0/ff5c48a7d644e292a653fd602db340b701bddba3973da7f64c6f25bbd9ab0fde9058567fdbe7efc72553561f3393f285413818d58f08614e73e0e85319f1da6e
+  languageName: node
+  linkType: hard
+
 "debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4, debug@npm:~4.3.6":
   version: 4.3.6
   resolution: "debug@npm:4.3.6"
@@ -1819,6 +1828,7 @@ __metadata:
     "@companion-module/tools": "npm:^1.5.1"
     "@types/node": "npm:^18.19.43"
     "@types/ws": "npm:^8.5.12"
+    debounce-fn: "npm:^6.0.0"
     home-assistant-js-websocket: "npm:^9.4.0"
     husky: "npm:^9.1.4"
     lint-staged: "npm:^15.2.8"

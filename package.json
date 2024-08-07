@@ -2,6 +2,7 @@
 	"name": "homeassistant-server",
 	"version": "1.0.2",
 	"main": "dist/index.js",
+	"type": "module",
 	"scripts": {
 		"prepare": "husky",
 		"build": "rimraf dist && yarn build:main",
@@ -28,6 +29,7 @@
 	},
 	"dependencies": {
 		"@companion-module/base": "~1.7.1",
+		"debounce-fn": "^6.0.0",
 		"home-assistant-js-websocket": "^9.4.0",
 		"ws": "^8.18.0"
 	},
