@@ -6,6 +6,7 @@ import {
 	HassServices,
 	createLongLivedTokenAuth,
 	HassEntity,
+	HassEntities,
 } from 'home-assistant-js-websocket'
 import { GetActionsList } from './actions.js'
 import { type DeviceConfig, GetConfigFields } from './config.js'
@@ -17,6 +18,7 @@ import { InstanceBase, InstanceStatus, runEntrypoint, SomeCompanionConfigField }
 import { UpgradeScripts } from './upgrades.js'
 import { stripTrailingSlash } from './util.js'
 import { HassEntitiesWithChanges, entitiesColl } from './hass/entities.js'
+import { EntitySubscriptions } from './state.js'
 
 const RECONNECT_INTERVAL = 5000
 
@@ -25,7 +27,9 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 	private config: DeviceConfig
 	private state: HassEntity[]
+	private stateObj: HassEntities
 	private services: HassServices
+	private entitySubscriptions = new EntitySubscriptions()
 	private client: Connection | undefined
 	private connecting: boolean
 	private unsubscribeEntities: UnsubscribeFunc | undefined
@@ -37,6 +41,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		this.config = {}
 		this.connecting = false
 		this.state = []
+		this.stateObj = {}
 		this.services = {}
 		this.needsReconnect = false
 	}
@@ -57,7 +62,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 		InitVariables(this, this.state)
 		this.setPresetDefinitions(GetPresetsList(this.state))
-		this.setFeedbackDefinitions(GetFeedbacksList(() => this.state))
+		this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
 		this.setActionDefinitions(
 			GetActionsList(() => ({ state: this.state, services: this.services, client: this.client }))
 		)
@@ -92,10 +97,15 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		this.client = undefined
 
 		this.state = []
+		this.stateObj = {}
 		this.services = {}
 		// updateVariables(this, this.state) No need, there are no entities
 
 		this.tryConnect()
+
+		// Re-init the subscriptions
+		this.entitySubscriptions.clear()
+		this.subscribeFeedbacks()
 	}
 
 	/**
@@ -129,6 +139,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 		this.needsReconnect = false
 		this.state = []
+		this.stateObj = {}
 		this.services = {}
 
 		this.log('debug', `destroy ${this.id}`)
@@ -209,19 +220,18 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 	/**
 	 * Handle state changes
-	 * Note: This mustn't be debounced directly, as then the added/changed/removed will be incorrect
+	 * Note: This must not be debounced directly, as then the added/changed/removed will be incorrect
 	 */
 	private processStateChange = (newState: HassEntitiesWithChanges): void => {
 		const newEntities = Object.values(newState.entities).sort((a, b) => a.entity_id.localeCompare(b.entity_id))
+		this.state = newEntities
+		this.stateObj = newState.entities
 
 		const entitiesChanged =
 			newState.added.length > 0 || newState.removed.length > 0 || newState.friendlyNameChange.length > 0
-
-		this.state = newEntities
-
 		if (entitiesChanged) {
 			this.setPresetDefinitions(GetPresetsList(this.state))
-			this.setFeedbackDefinitions(GetFeedbacksList(() => this.state))
+			this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
 			this.setActionDefinitions(
 				GetActionsList(() => ({ state: this.state, client: this.client, services: this.services }))
 			)
@@ -230,7 +240,29 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 		updateVariables(this, newState)
 
-		this.checkFeedbacks()
+		this.#checkAffectedFeedbacks(newState)
+	}
+
+	#checkAffectedFeedbacks(newState: HassEntitiesWithChanges) {
+		const changedFeedbackInstanceIds = new Set<string>()
+
+		const checkEntityIds = (entityIds: string[]) => {
+			for (const entityId of entityIds) {
+				const instanceIds = this.entitySubscriptions.getFeedbackInstanceIds(entityId)
+				for (const instanceId of instanceIds) {
+					changedFeedbackInstanceIds.add(instanceId)
+				}
+			}
+		}
+
+		checkEntityIds(newState.added)
+		checkEntityIds(newState.contentChanged)
+		checkEntityIds(newState.removed)
+		// No feedback based on the friendly name
+
+		if (changedFeedbackInstanceIds.size > 0) {
+			this.checkFeedbacksById(...changedFeedbackInstanceIds)
+		}
 	}
 
 	private processServicesChange(services: HassServices): void {

@@ -3,9 +3,11 @@ import {
 	CompanionFeedbackDefinitions,
 	combineRgb,
 	CompanionFeedbackBooleanEvent,
+	CompanionFeedbackInfo,
 } from '@companion-module/base'
-import type { HassEntity } from 'home-assistant-js-websocket'
+import type { HassEntities, HassEntity } from 'home-assistant-js-websocket'
 import { EntityPicker, OnOffPicker } from './choices.js'
+import { EntitySubscriptions } from './state.js'
 
 export enum FeedbackId {
 	SwitchState = 'switch_state',
@@ -16,10 +18,14 @@ export enum FeedbackId {
 	GroupOnState = 'group_on_state',
 }
 
-export function GetFeedbacksList(getState: () => HassEntity[]): CompanionFeedbackDefinitions {
+export function GetFeedbacksList(
+	initialState: HassEntity[],
+	getState: () => HassEntities,
+	entitySubscriptions: EntitySubscriptions
+): CompanionFeedbackDefinitions {
 	const checkEntityOnOffState = (feedback: CompanionFeedbackBooleanEvent): boolean => {
 		const state = getState()
-		const entity = state.find((e) => e.entity_id === String(feedback.options.entity_id))
+		const entity = state[String(feedback.options.entity_id)]
 		if (entity) {
 			const isOn = entity.state === 'on'
 			const targetOn = !!feedback.options.state
@@ -28,7 +34,15 @@ export function GetFeedbacksList(getState: () => HassEntity[]): CompanionFeedbac
 		return false
 	}
 
-	const initialState = getState()
+	const subscribeEntityPicker = (feedback: CompanionFeedbackInfo): void => {
+		const entityId = String(feedback.options.entity_id)
+		entitySubscriptions.subscribe(entityId, feedback.id, feedback.feedbackId as FeedbackId)
+	}
+	const unsubscribeEntityPicker = (feedback: CompanionFeedbackInfo): void => {
+		const entityId = String(feedback.options.entity_id)
+		entitySubscriptions.unsubscribe(entityId, feedback.id)
+	}
+
 	const feedbacks: { [id in FeedbackId]: CompanionFeedbackDefinition | undefined } = {
 		[FeedbackId.SwitchState]: {
 			type: 'boolean',
@@ -40,6 +54,8 @@ export function GetFeedbacksList(getState: () => HassEntity[]): CompanionFeedbac
 				bgcolor: combineRgb(0, 255, 0),
 			},
 			callback: (feedback): boolean => checkEntityOnOffState(feedback),
+			subscribe: subscribeEntityPicker,
+			unsubscribe: unsubscribeEntityPicker,
 		},
 		[FeedbackId.InputBooleanState]: {
 			type: 'boolean',
@@ -51,6 +67,8 @@ export function GetFeedbacksList(getState: () => HassEntity[]): CompanionFeedbac
 				bgcolor: combineRgb(0, 255, 0),
 			},
 			callback: (feedback): boolean => checkEntityOnOffState(feedback),
+			subscribe: subscribeEntityPicker,
+			unsubscribe: unsubscribeEntityPicker,
 		},
 		[FeedbackId.LightOnState]: {
 			type: 'boolean',
@@ -62,6 +80,8 @@ export function GetFeedbacksList(getState: () => HassEntity[]): CompanionFeedbac
 				bgcolor: combineRgb(0, 255, 0),
 			},
 			callback: (feedback): boolean => checkEntityOnOffState(feedback),
+			subscribe: subscribeEntityPicker,
+			unsubscribe: unsubscribeEntityPicker,
 		},
 		[FeedbackId.BinarySensorState]: {
 			type: 'boolean',
@@ -73,6 +93,8 @@ export function GetFeedbacksList(getState: () => HassEntity[]): CompanionFeedbac
 				bgcolor: combineRgb(0, 255, 0),
 			},
 			callback: (feedback): boolean => checkEntityOnOffState(feedback),
+			subscribe: subscribeEntityPicker,
+			unsubscribe: unsubscribeEntityPicker,
 		},
 		[FeedbackId.InputSelectState]: {
 			type: 'boolean',
@@ -93,12 +115,14 @@ export function GetFeedbacksList(getState: () => HassEntity[]): CompanionFeedbac
 			},
 			callback: (feedback): boolean => {
 				const state = getState()
-				const entity = state.find((e) => e.entity_id === String(feedback.options.entity_id))
+				const entity = state[String(feedback.options.entity_id)]
 				if (entity) {
 					return entity.state === feedback.options.option
 				}
 				return false
 			},
+			subscribe: subscribeEntityPicker,
+			unsubscribe: unsubscribeEntityPicker,
 		},
 		[FeedbackId.GroupOnState]: {
 			type: 'boolean',
@@ -110,6 +134,8 @@ export function GetFeedbacksList(getState: () => HassEntity[]): CompanionFeedbac
 				bgcolor: combineRgb(0, 255, 0),
 			},
 			callback: (feedback): boolean => checkEntityOnOffState(feedback),
+			subscribe: subscribeEntityPicker,
+			unsubscribe: unsubscribeEntityPicker,
 		},
 	}
 
