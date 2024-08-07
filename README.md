@@ -10,6 +10,10 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### v1.1.0
+
+- Performance improvements
+
 ### v1.0.2
 
 - Fix build
