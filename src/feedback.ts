@@ -21,7 +21,7 @@ export enum FeedbackId {
 export function GetFeedbacksList(
 	initialState: HassEntity[],
 	getState: () => HassEntities,
-	entitySubscriptions: EntitySubscriptions
+	entitySubscriptions: EntitySubscriptions,
 ): CompanionFeedbackDefinitions {
 	const checkEntityOnOffState = (feedback: CompanionFeedbackBooleanEvent): boolean => {
 		const state = getState()

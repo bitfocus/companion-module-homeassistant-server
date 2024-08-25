@@ -28,7 +28,7 @@ function updateEntityVariables(variables: CompanionVariableValues, entity: HassE
 
 	if (entity.entity_id.startsWith('light.')) {
 		variables[`entity.${entity.entity_id}.brightness`] = Math.round(
-			(100 * (entity.attributes.brightness ?? 0)) / LIGHT_MAX_BRIGHTNESS
+			(100 * (entity.attributes.brightness ?? 0)) / LIGHT_MAX_BRIGHTNESS,
 		)
 	}
 }

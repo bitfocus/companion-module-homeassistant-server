@@ -67,7 +67,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		this.setPresetDefinitions(GetPresetsList(this.state))
 		this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
 		this.setActionDefinitions(
-			GetActionsList(() => ({ state: this.state, services: this.services, client: this.client }))
+			GetActionsList(() => ({ state: this.state, services: this.services, client: this.client })),
 		)
 		// updateVariables(this, this.state) No need, there are no entities
 	}
@@ -94,7 +94,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 			if (this.client) {
 				this.client.close()
 			}
-		} catch (e) {
+		} catch (_e) {
 			// Ignore
 		}
 		this.client = undefined
@@ -135,7 +135,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 			if (this.client) {
 				this.client.close()
 			}
-		} catch (e) {
+		} catch (_e) {
 			// Ignore
 		}
 		this.client = undefined
@@ -169,7 +169,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 				if (this.needsReconnect) {
 					try {
 						connection.close()
-					} catch (e) {
+					} catch (_e) {
 						// Ignore
 					}
 					// Restart the process with the new url
@@ -280,7 +280,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 				this.setPresetDefinitions(GetPresetsList(this.state))
 				this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
 				this.setActionDefinitions(
-					GetActionsList(() => ({ state: this.state, client: this.client, services: this.services }))
+					GetActionsList(() => ({ state: this.state, client: this.client, services: this.services })),
 				)
 				InitVariables(this, this.state)
 			}
@@ -294,7 +294,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 			maxWait: 50,
 			before: false,
 			after: true,
-		}
+		},
 	)
 
 	#checkAffectedFeedbacks(newState: HassEntitiesWithChanges) {
@@ -323,7 +323,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		this.services = services
 
 		this.setActionDefinitions(
-			GetActionsList(() => ({ state: this.state, client: this.client, services: this.services }))
+			GetActionsList(() => ({ state: this.state, client: this.client, services: this.services })),
 		)
 	}
 }

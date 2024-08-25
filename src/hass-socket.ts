@@ -29,7 +29,7 @@ export function hassErrorToString(e: number): string {
 export async function createSocket(
 	auth: ha.Auth,
 	ignoreCertificates: boolean,
-	instance: InstanceBase<unknown> & { needsReconnect: boolean }
+	instance: InstanceBase<unknown> & { needsReconnect: boolean },
 ): Promise<ha.HaWebSocket> {
 	// Convert from http:// -> ws://, https:// -> wss://
 	const url = auth.wsUrl
@@ -39,7 +39,7 @@ export async function createSocket(
 	function connect(
 		triesLeft: number,
 		promResolve: (socket: ha.HaWebSocket) => void,
-		promReject: (err: number) => void
+		promReject: (err: number) => void,
 	): void {
 		if (instance.needsReconnect) {
 			// Force rejection, to start again with a new url
@@ -65,7 +65,6 @@ export async function createSocket(
 			closeOrError(msg)
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const errorMessage = (ev: { error: any; message: any; type: string; target: WebSocket }): void => {
 			// If we are in error handler make sure close handler doesn't also fire.
 			socket.removeEventListener('close', closeMessage)
@@ -109,7 +108,7 @@ export async function createSocket(
 						JSON.stringify({
 							type: 'auth',
 							access_token: auth.accessToken,
-						})
+						}),
 					)
 				})
 				.catch((err) => {
@@ -119,7 +118,6 @@ export async function createSocket(
 				})
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const handleMessage = (event: { data: any; type: string; target: WebSocket }): void => {
 			const message = JSON.parse(event.data)
 

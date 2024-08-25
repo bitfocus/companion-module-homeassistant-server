@@ -62,7 +62,7 @@ export function EntityPicker(state: HassEntity[], prefix: string | undefined): C
 
 export function EntityMultiplePicker(
 	state: HassEntity[],
-	prefix: string | undefined
+	prefix: string | undefined,
 ): CompanionInputFieldMultiDropdown {
 	const choices = EntityOptions(state, prefix)
 

@@ -33,7 +33,7 @@ export enum ActionId {
 }
 
 export function GetActionsList(
-	getProps: () => { state: HassEntity[]; services: HassServices; client: Connection | undefined }
+	getProps: () => { state: HassEntity[]; services: HassServices; client: Connection | undefined },
 ): CompanionActionDefinitions {
 	const entityOnOff = async (opt: CompanionActionEvent['options']): Promise<void> => {
 		const { client } = getProps()
