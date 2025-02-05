@@ -31,33 +31,49 @@ function updateEntityVariables(variables: CompanionVariableValues, entity: HassE
 			(100 * (entity.attributes.brightness ?? 0)) / LIGHT_MAX_BRIGHTNESS,
 		)
 	}
+
+	if (entity.attributes) {
+		Object.keys(entity.attributes).forEach((attr) => {
+			variables[`entity.${entity.entity_id}.attributes.${attr}`] = entity.attributes[attr]
+		});
+	}
 }
 
 export function InitVariables(instance: InstanceBase<DeviceConfig>, state: HassEntity[]): void {
 	const variables: CompanionVariableDefinition[] = []
 
 	for (const entity of state) {
+		const name = entity.attributes.friendly_name ?? entity.entity_id
 		variables.push({
-			name: `Entity Value: ${entity.attributes.friendly_name ?? entity.entity_id}`,
+			name: `Entity Value: ${name}`,
 			variableId: `entity.${entity.entity_id}.value`,
 		})
 		variables.push({
-			name: `Entity Name: ${entity.attributes.friendly_name ?? entity.entity_id}`,
+			name: `Entity Name: ${name}`,
 			variableId: `entity.${entity.entity_id}`,
 		})
 
 		// for (let i = 0; i < 1000; i++) {
 		// 	variables.push({
-		// 		name: `Entity Value: ${entity.attributes.friendly_name ?? entity.entity_id}_${i}`,
+		// 		name: `Entity Value: ${name}_${i}`,
 		// 		variableId: `entity.${entity.entity_id}.value_${i}`,
 		// 	})
 		// }
 
 		if (entity.entity_id.startsWith('light.')) {
 			variables.push({
-				name: `Light Brightness: ${entity.attributes.friendly_name ?? entity.entity_id}`,
+				name: `Light Brightness: ${name}`,
 				variableId: `entity.${entity.entity_id}.brightness`,
 			})
+		}
+
+		if (entity.attributes) {
+			Object.keys(entity.attributes).forEach((attr) => {
+				variables.push({
+					name: `Entity Attribute: ${name} - ${attr}`,
+					variableId: `entity.${entity.entity_id}.attributes.${attr}`,
+				})
+			});
 		}
 	}
 
