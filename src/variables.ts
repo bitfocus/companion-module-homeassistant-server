@@ -35,7 +35,7 @@ function updateEntityVariables(variables: CompanionVariableValues, entity: HassE
 	if (entity.attributes) {
 		Object.keys(entity.attributes).forEach((attr) => {
 			variables[`entity.${entity.entity_id}.attributes.${attr}`] = entity.attributes[attr]
-		});
+		})
 	}
 }
 
@@ -44,14 +44,8 @@ export function InitVariables(instance: InstanceBase<DeviceConfig>, state: HassE
 
 	for (const entity of state) {
 		const name = entity.attributes.friendly_name ?? entity.entity_id
-		variables.push({
-			name: `Entity Value: ${name}`,
-			variableId: `entity.${entity.entity_id}.value`,
-		})
-		variables.push({
-			name: `Entity Name: ${name}`,
-			variableId: `entity.${entity.entity_id}`,
-		})
+		variables.push({ name: `Entity Value: ${name}`, variableId: `entity.${entity.entity_id}.value` })
+		variables.push({ name: `Entity Name: ${name}`, variableId: `entity.${entity.entity_id}` })
 
 		// for (let i = 0; i < 1000; i++) {
 		// 	variables.push({
@@ -61,10 +55,7 @@ export function InitVariables(instance: InstanceBase<DeviceConfig>, state: HassE
 		// }
 
 		if (entity.entity_id.startsWith('light.')) {
-			variables.push({
-				name: `Light Brightness: ${name}`,
-				variableId: `entity.${entity.entity_id}.brightness`,
-			})
+			variables.push({ name: `Light Brightness: ${name}`, variableId: `entity.${entity.entity_id}.brightness` })
 		}
 
 		if (entity.attributes) {
@@ -73,7 +64,7 @@ export function InitVariables(instance: InstanceBase<DeviceConfig>, state: HassE
 					name: `Entity Attribute: ${name} - ${attr}`,
 					variableId: `entity.${entity.entity_id}.attributes.${attr}`,
 				})
-			});
+			})
 		}
 	}
 
