@@ -10,6 +10,11 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### v1.2.0
+
+- Variables for entity attributes
+- Require Companion 3.5+
+
 ### v1.1.0
 
 - Performance improvements
