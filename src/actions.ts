@@ -6,6 +6,7 @@ import {
 	type HassServiceTarget,
 } from 'home-assistant-js-websocket'
 import type {
+	CompanionActionContext,
 	CompanionActionEvent,
 	CompanionActionDefinitions,
 	CompanionActionDefinition,
@@ -265,14 +266,15 @@ export function GetActionsList(
 					tooltip: 'Must be valid JSON!',
 					default: '{ "option": "value" }',
 					label: 'Payload',
+					useVariables: true,
 				},
 			],
-			callback: async (evt) => {
+			callback: async (evt, context: CompanionActionContext) => {
 				const { client } = getProps()
 				if (!client) return
 
 				try {
-					const payload = JSON.parse(evt.options.payload as string)
+					const payload = JSON.parse(await context.parseVariablesInString(evt.options.payload as string))
 
 					// Split the domain off of the service name
 					const [domain, service] = `${evt.options.service}`.split('.', 2)
