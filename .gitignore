@@ -17,5 +17,5 @@ dist/
 *.log
 .idea/
 pkg
-pkg.tgz
+*.tgz
 DEBUG-*
