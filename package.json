@@ -32,7 +32,7 @@
 		"ws": "^8.18.2"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^2.3.0",
+		"@companion-module/tools": "^2.6.0",
 		"@types/node": "^22.15.21",
 		"@types/ws": "^8.18.1",
 		"eslint": "^9.27.0",
