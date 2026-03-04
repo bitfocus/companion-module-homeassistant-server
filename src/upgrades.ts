@@ -5,10 +5,10 @@ import { FeedbackId } from './feedback.js'
 const BooleanFeedbackUpgradeMap: {
 	[id in FeedbackId]?: true
 } = {
-	[FeedbackId.SwitchState]: true,
-	[FeedbackId.InputBooleanState]: true,
-	[FeedbackId.LightOnState]: true,
-	[FeedbackId.BinarySensorState]: true,
+	switch_state: true,
+	input_boolean_state: true,
+	light_on_state: true,
+	binary_sensor_state: true,
 }
 
 export const UpgradeScripts: CompanionStaticUpgradeScript<DeviceConfig>[] = [

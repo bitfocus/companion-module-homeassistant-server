@@ -10,20 +10,23 @@ import {
 } from 'home-assistant-js-websocket'
 import { GetActionsList } from './actions.js'
 import { type DeviceConfig, GetConfigFields } from './config.js'
-import { FeedbackId, GetFeedbacksList } from './feedback.js'
+import { GetFeedbacksList } from './feedback.js'
 import { createSocket, hassErrorToString } from './hass-socket.js'
 import { GetPresetsList } from './presets.js'
 import { InitVariables, updateVariables } from './variables.js'
-import { InstanceBase, InstanceStatus, runEntrypoint, SomeCompanionConfigField } from '@companion-module/base'
+import { InstanceBase, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
 import { UpgradeScripts } from './upgrades.js'
 import { stripTrailingSlash } from './util.js'
 import { HassEntitiesWithChanges, entitiesColl } from './hass/entities.js'
 import { EntitySubscriptions } from './state.js'
 import debounceFn from 'debounce-fn'
+import type { HassSchema } from './schema.js'
 
 const RECONNECT_INTERVAL = 5000
 
-class ControllerInstance extends InstanceBase<DeviceConfig> {
+export { UpgradeScripts }
+
+export default class ControllerInstance extends InstanceBase<HassSchema> {
 	public needsReconnect: boolean
 
 	private config: DeviceConfig
@@ -49,11 +52,6 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		this.needsReconnect = false
 	}
 
-	// Override base types to make types stricter
-	public checkFeedbacks(...feedbackTypes: FeedbackId[]): void {
-		super.checkFeedbacks(...feedbackTypes)
-	}
-
 	/**
 	 * Main initialization function called once the module
 	 * is OK to start doing things.
@@ -64,7 +62,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		await this.configUpdated(this.config)
 
 		InitVariables(this, this.state)
-		this.setPresetDefinitions(GetPresetsList(this.state))
+		this.setPresetDefinitions(...GetPresetsList(this.state))
 		this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
 		this.setActionDefinitions(
 			GetActionsList(() => ({ state: this.state, services: this.services, client: this.client })),
@@ -108,7 +106,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 
 		// Re-init the subscriptions
 		this.entitySubscriptions.clear()
-		this.subscribeFeedbacks()
+		this.checkAllFeedbacks()
 	}
 
 	/**
@@ -277,7 +275,7 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 			const entitiesChanged =
 				newState.added.size > 0 || newState.removed.size > 0 || newState.friendlyNameChange.size > 0
 			if (entitiesChanged) {
-				this.setPresetDefinitions(GetPresetsList(this.state))
+				this.setPresetDefinitions(...GetPresetsList(this.state))
 				this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
 				this.setActionDefinitions(
 					GetActionsList(() => ({ state: this.state, client: this.client, services: this.services })),
@@ -327,5 +325,3 @@ class ControllerInstance extends InstanceBase<DeviceConfig> {
 		)
 	}
 }
-
-runEntrypoint(ControllerInstance, UpgradeScripts)

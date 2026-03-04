@@ -9,7 +9,7 @@ import { OnOffToggle } from './util.js'
 
 export const LIGHT_MAX_BRIGHTNESS = 255
 
-export function OnOffTogglePicker(): CompanionInputFieldDropdown {
+export function OnOffTogglePicker(): CompanionInputFieldDropdown<'state'> {
 	const options = [
 		{ id: OnOffToggle.On, label: 'On' },
 		{ id: OnOffToggle.Off, label: 'Off' },
@@ -21,10 +21,11 @@ export function OnOffTogglePicker(): CompanionInputFieldDropdown {
 		id: 'state',
 		default: OnOffToggle.On,
 		choices: options,
+		disableAutoExpression: true,
 	}
 }
 
-export function OnOffPicker(): CompanionInputFieldCheckbox {
+export function OnOffPicker(): CompanionInputFieldCheckbox<'state'> {
 	return {
 		type: 'checkbox',
 		label: 'State',
@@ -33,7 +34,7 @@ export function OnOffPicker(): CompanionInputFieldCheckbox {
 	}
 }
 
-function EntityOptions(state: HassEntity[], prefix: string | undefined): DropdownChoice[] {
+function EntityOptions(state: HassEntity[], prefix: string | undefined): DropdownChoice<string>[] {
 	const entities = state.filter((ent) => prefix === undefined || ent.entity_id.indexOf(`${prefix}.`) === 0)
 
 	return entities
@@ -48,7 +49,10 @@ function EntityOptions(state: HassEntity[], prefix: string | undefined): Dropdow
 		})
 }
 
-export function EntityPicker(state: HassEntity[], prefix: string | undefined): CompanionInputFieldDropdown {
+export function EntityPicker(
+	state: HassEntity[],
+	prefix: string | undefined,
+): CompanionInputFieldDropdown<'entity_id', string> {
 	const choices = EntityOptions(state, prefix)
 
 	return {
@@ -63,7 +67,7 @@ export function EntityPicker(state: HassEntity[], prefix: string | undefined): C
 export function EntityMultiplePicker(
 	state: HassEntity[],
 	prefix: string | undefined,
-): CompanionInputFieldMultiDropdown {
+): CompanionInputFieldMultiDropdown<'entity_id'> {
 	const choices = EntityOptions(state, prefix)
 
 	return {

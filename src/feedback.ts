@@ -1,7 +1,5 @@
-import {
-	CompanionFeedbackDefinition,
+import type {
 	CompanionFeedbackDefinitions,
-	combineRgb,
 	CompanionFeedbackBooleanEvent,
 	CompanionFeedbackInfo,
 } from '@companion-module/base'
@@ -9,23 +7,63 @@ import type { HassEntities, HassEntity } from 'home-assistant-js-websocket'
 import { EntityPicker, OnOffPicker } from './choices.js'
 import { EntitySubscriptions } from './state.js'
 
-export enum FeedbackId {
-	SwitchState = 'switch_state',
-	InputBooleanState = 'input_boolean_state',
-	LightOnState = 'light_on_state',
-	BinarySensorState = 'binary_sensor_state',
-	InputSelectState = 'input_select_state',
-	GroupOnState = 'group_on_state',
+export type FeedbackId = keyof FeedbacksSchema
+
+export type FeedbacksSchema = {
+	switch_state: {
+		type: 'boolean'
+		options: {
+			entity_id: string
+			state: boolean
+		}
+	}
+	input_boolean_state: {
+		type: 'boolean'
+		options: {
+			entity_id: string
+			state: boolean
+		}
+	}
+	light_on_state: {
+		type: 'boolean'
+		options: {
+			entity_id: string
+			state: boolean
+		}
+	}
+	binary_sensor_state: {
+		type: 'boolean'
+		options: {
+			entity_id: string
+			state: boolean
+		}
+	}
+	input_select_state: {
+		type: 'boolean'
+		options: {
+			entity_id: string
+			option: string
+		}
+	}
+	group_on_state: {
+		type: 'boolean'
+		options: {
+			entity_id: string
+			state: boolean
+		}
+	}
 }
 
 export function GetFeedbacksList(
 	initialState: HassEntity[],
 	getState: () => HassEntities,
 	entitySubscriptions: EntitySubscriptions,
-): CompanionFeedbackDefinitions {
-	const checkEntityOnOffState = (feedback: CompanionFeedbackBooleanEvent): boolean => {
+): CompanionFeedbackDefinitions<FeedbacksSchema> {
+	const checkEntityOnOffState = (
+		feedback: CompanionFeedbackBooleanEvent<{ entity_id: string; state: boolean }>,
+	): boolean => {
 		const state = getState()
-		const entity = state[String(feedback.options.entity_id)]
+		const entity = state[feedback.options.entity_id]
 		if (entity) {
 			const isOn = entity.state === 'on'
 			const targetOn = !!feedback.options.state
@@ -34,69 +72,76 @@ export function GetFeedbacksList(
 		return false
 	}
 
-	const subscribeEntityPicker = (feedback: CompanionFeedbackInfo): void => {
-		const entityId = String(feedback.options.entity_id)
-		entitySubscriptions.subscribe(entityId, feedback.id, feedback.feedbackId as FeedbackId)
+	const subscribeEntityPicker = (feedback: CompanionFeedbackInfo<{ entity_id: string }>): void => {
+		entitySubscriptions.subscribe(feedback.options.entity_id, feedback.id, feedback.feedbackId as FeedbackId)
 	}
-	const unsubscribeEntityPicker = (feedback: CompanionFeedbackInfo): void => {
-		const entityId = String(feedback.options.entity_id)
-		entitySubscriptions.unsubscribe(entityId, feedback.id)
+	const unsubscribeEntityPicker = (feedback: CompanionFeedbackInfo<{ entity_id: string }>): void => {
+		entitySubscriptions.unsubscribe(feedback.options.entity_id, feedback.id)
 	}
 
-	const feedbacks: { [id in FeedbackId]: CompanionFeedbackDefinition | undefined } = {
-		[FeedbackId.SwitchState]: {
+	const feedbacks: CompanionFeedbackDefinitions<FeedbacksSchema> = {
+		switch_state: {
 			type: 'boolean',
 			name: 'Change from switch state',
 			description: 'If the switch state matches the rule, change style of the bank',
 			options: [EntityPicker(initialState, 'switch'), OnOffPicker()],
 			defaultStyle: {
-				color: combineRgb(0, 0, 0),
-				bgcolor: combineRgb(0, 255, 0),
+				color: 0x000000,
+				bgcolor: 0x00ff00,
 			},
-			callback: (feedback): boolean => checkEntityOnOffState(feedback),
-			subscribe: subscribeEntityPicker,
+			callback: (feedback): boolean => {
+				subscribeEntityPicker(feedback)
+
+				return checkEntityOnOffState(feedback)
+			},
 			unsubscribe: unsubscribeEntityPicker,
 		},
-		[FeedbackId.InputBooleanState]: {
+		input_boolean_state: {
 			type: 'boolean',
 			name: 'Change from input_boolean state',
 			description: 'If the input_boolean state matches the rule, change style of the bank',
 			options: [EntityPicker(initialState, 'input_boolean'), OnOffPicker()],
 			defaultStyle: {
-				color: combineRgb(0, 0, 0),
-				bgcolor: combineRgb(0, 255, 0),
+				color: 0x000000,
+				bgcolor: 0x00ff00,
 			},
-			callback: (feedback): boolean => checkEntityOnOffState(feedback),
-			subscribe: subscribeEntityPicker,
+			callback: (feedback): boolean => {
+				subscribeEntityPicker(feedback)
+				return checkEntityOnOffState(feedback)
+			},
 			unsubscribe: unsubscribeEntityPicker,
 		},
-		[FeedbackId.LightOnState]: {
+		light_on_state: {
 			type: 'boolean',
 			name: 'Change from light on state',
 			description: 'If the light state matches the rule, change style of the bank',
 			options: [EntityPicker(initialState, 'light'), OnOffPicker()],
 			defaultStyle: {
-				color: combineRgb(0, 0, 0),
-				bgcolor: combineRgb(0, 255, 0),
+				color: 0x000000,
+				bgcolor: 0x00ff00,
 			},
-			callback: (feedback): boolean => checkEntityOnOffState(feedback),
-			subscribe: subscribeEntityPicker,
+			callback: (feedback): boolean => {
+				subscribeEntityPicker(feedback)
+				return checkEntityOnOffState(feedback)
+			},
 			unsubscribe: unsubscribeEntityPicker,
 		},
-		[FeedbackId.BinarySensorState]: {
+		binary_sensor_state: {
 			type: 'boolean',
 			name: 'Change from binary sensor state',
 			description: 'If the binary sensor state matches the rule, change style of the bank',
 			options: [EntityPicker(initialState, 'binary_sensor'), OnOffPicker()],
 			defaultStyle: {
-				color: combineRgb(0, 0, 0),
-				bgcolor: combineRgb(0, 255, 0),
+				color: 0x000000,
+				bgcolor: 0x00ff00,
 			},
-			callback: (feedback): boolean => checkEntityOnOffState(feedback),
-			subscribe: subscribeEntityPicker,
+			callback: (feedback): boolean => {
+				subscribeEntityPicker(feedback)
+				return checkEntityOnOffState(feedback)
+			},
 			unsubscribe: unsubscribeEntityPicker,
 		},
-		[FeedbackId.InputSelectState]: {
+		input_select_state: {
 			type: 'boolean',
 			name: 'Change from input select state',
 			description: 'If the input select state matches the rule, change style of the bank',
@@ -110,10 +155,11 @@ export function GetFeedbacksList(
 				},
 			],
 			defaultStyle: {
-				color: combineRgb(0, 0, 0),
-				bgcolor: combineRgb(0, 255, 0),
+				color: 0x000000,
+				bgcolor: 0x00ff00,
 			},
 			callback: (feedback): boolean => {
+				subscribeEntityPicker(feedback)
 				const state = getState()
 				const entity = state[String(feedback.options.entity_id)]
 				if (entity) {
@@ -121,20 +167,21 @@ export function GetFeedbacksList(
 				}
 				return false
 			},
-			subscribe: subscribeEntityPicker,
 			unsubscribe: unsubscribeEntityPicker,
 		},
-		[FeedbackId.GroupOnState]: {
+		group_on_state: {
 			type: 'boolean',
 			name: 'Change from group on state',
 			description: 'If the group state matches the rule, change style of the bank',
 			options: [EntityPicker(initialState, 'group'), OnOffPicker()],
 			defaultStyle: {
-				color: combineRgb(0, 0, 0),
-				bgcolor: combineRgb(0, 255, 0),
+				color: 0x000000,
+				bgcolor: 0x00ff00,
 			},
-			callback: (feedback): boolean => checkEntityOnOffState(feedback),
-			subscribe: subscribeEntityPicker,
+			callback: (feedback): boolean => {
+				subscribeEntityPicker(feedback)
+				return checkEntityOnOffState(feedback)
+			},
 			unsubscribe: unsubscribeEntityPicker,
 		},
 	}

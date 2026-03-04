@@ -10,6 +10,7 @@ https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/so
 import { InstanceBase, InstanceStatus } from '@companion-module/base'
 import * as ha from 'home-assistant-js-websocket'
 import WebSocket from 'ws'
+import { HassSchema } from './schema.js'
 
 export function hassErrorToString(e: number): string {
 	switch (e) {
@@ -29,7 +30,7 @@ export function hassErrorToString(e: number): string {
 export async function createSocket(
 	auth: ha.Auth,
 	ignoreCertificates: boolean,
-	instance: InstanceBase<unknown> & { needsReconnect: boolean },
+	instance: InstanceBase<HassSchema> & { needsReconnect: boolean },
 ): Promise<ha.HaWebSocket> {
 	// Convert from http:// -> ws://, https:// -> wss://
 	const url = auth.wsUrl

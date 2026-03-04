@@ -1,11 +1,18 @@
-import type { CompanionVariableDefinition, CompanionVariableValues, InstanceBase } from '@companion-module/base'
+import type { CompanionVariableDefinitions, InstanceBase, JsonValue } from '@companion-module/base'
 import type { HassEntity } from 'home-assistant-js-websocket'
 import { LIGHT_MAX_BRIGHTNESS } from './choices.js'
-import type { DeviceConfig } from './config.js'
 import { HassEntitiesWithChanges } from './hass/entities.js'
+import type { HassSchema } from './schema.js'
 
-export function updateVariables(instance: InstanceBase<DeviceConfig>, state: HassEntitiesWithChanges): void {
-	const variables: CompanionVariableValues = {}
+export type HassVariables = {
+	[key: `entity.${string}`]: JsonValue | undefined // Because of clash with the below :(
+	[key: `entity.${string}.value`]: JsonValue | undefined
+	[key: `entity.${string}.brightness`]: number
+	[key: `entity.${string}.attributes.${string}`]: JsonValue | undefined
+}
+
+export function updateVariables(instance: InstanceBase<HassSchema>, state: HassEntitiesWithChanges): void {
+	const variables: Partial<HassVariables> = {}
 
 	const updateForIds = (ids: Set<string>): void => {
 		for (const id of ids) {
@@ -22,7 +29,7 @@ export function updateVariables(instance: InstanceBase<DeviceConfig>, state: Has
 	instance.setVariableValues(variables as any) // TODO - remove this cast
 }
 
-function updateEntityVariables(variables: CompanionVariableValues, entity: HassEntity): void {
+function updateEntityVariables(variables: Partial<HassVariables>, entity: HassEntity): void {
 	variables[`entity.${entity.entity_id}.value`] = entity.state
 	variables[`entity.${entity.entity_id}`] = entity.attributes.friendly_name ?? entity.entity_id
 
@@ -39,13 +46,13 @@ function updateEntityVariables(variables: CompanionVariableValues, entity: HassE
 	}
 }
 
-export function InitVariables(instance: InstanceBase<DeviceConfig>, state: HassEntity[]): void {
-	const variables: CompanionVariableDefinition[] = []
+export function InitVariables(instance: InstanceBase<HassSchema>, state: HassEntity[]): void {
+	const variables: CompanionVariableDefinitions<HassVariables> = {}
 
 	for (const entity of state) {
 		const name = entity.attributes.friendly_name ?? entity.entity_id
-		variables.push({ name: `Entity Value: ${name}`, variableId: `entity.${entity.entity_id}.value` })
-		variables.push({ name: `Entity Name: ${name}`, variableId: `entity.${entity.entity_id}` })
+		variables[`entity.${entity.entity_id}.value`] = { name: `Entity Value: ${name}` }
+		variables[`entity.${entity.entity_id}`] = { name: `Entity Name: ${name}` }
 
 		// for (let i = 0; i < 1000; i++) {
 		// 	variables.push({
@@ -55,15 +62,14 @@ export function InitVariables(instance: InstanceBase<DeviceConfig>, state: HassE
 		// }
 
 		if (entity.entity_id.startsWith('light.')) {
-			variables.push({ name: `Light Brightness: ${name}`, variableId: `entity.${entity.entity_id}.brightness` })
+			variables[`entity.${entity.entity_id}.brightness`] = { name: `Light Brightness: ${name}` }
 		}
 
 		if (entity.attributes) {
 			Object.keys(entity.attributes).forEach((attr) => {
-				variables.push({
+				variables[`entity.${entity.entity_id}.attributes.${attr}`] = {
 					name: `Entity Attribute: ${name} - ${attr}`,
-					variableId: `entity.${entity.entity_id}.attributes.${attr}`,
-				})
+				}
 			})
 		}
 	}

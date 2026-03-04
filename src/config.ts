@@ -1,6 +1,6 @@
 import { SomeCompanionConfigField } from '@companion-module/base'
 
-export interface DeviceConfig {
+export type DeviceConfig = {
 	url?: string
 	ignore_certificates?: boolean
 	access_token?: string

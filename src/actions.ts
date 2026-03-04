@@ -5,36 +5,100 @@ import {
 	type HassServices,
 	type HassServiceTarget,
 } from 'home-assistant-js-websocket'
-import type {
-	CompanionActionEvent,
-	CompanionActionDefinitions,
-	CompanionActionDefinition,
-	DropdownChoice,
-} from '@companion-module/base'
+import type { CompanionActionEvent, CompanionActionDefinitions, DropdownChoice } from '@companion-module/base'
 import { EntityMultiplePicker, OnOffTogglePicker } from './choices.js'
 import { OnOffToggle } from './util.js'
 
-export enum ActionId {
-	SetSwitch = 'set_switch',
-	SetInputBoolean = 'set_input_boolean',
-	SetLightOn = 'set_light_on',
-	SetLightPercent = 'set_light_pct',
-	AdjLightPercent = 'adj_light_pct',
-	ExecuteScript = 'execute_script',
-	PressButton = 'press_button',
-	ActivateScene = 'activate_scene',
-	InputSelectFirst = 'input_select_first',
-	InputSelectLast = 'input_select_last',
-	InputSelectNext = 'input_select_next',
-	InputSelectPrevious = 'input_select_previous',
-	InputSelectSet = 'input_select_set',
-	SetGroupOn = 'set_group_on',
-	CallService = 'call_service',
+export type ActionsSchema = {
+	set_switch: {
+		options: {
+			entity_id: string[]
+			state: OnOffToggle
+		}
+	}
+	set_input_boolean: {
+		options: {
+			entity_id: string[]
+			state: OnOffToggle
+		}
+	}
+	set_light_on: {
+		options: {
+			entity_id: string[]
+			state: OnOffToggle
+		}
+	}
+	set_light_pct: {
+		options: {
+			entity_id: string[]
+			pct: number
+		}
+	}
+	adj_light_pct: {
+		options: {
+			entity_id: string[]
+			pct: number
+		}
+	}
+	execute_script: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	press_button: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	activate_scene: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	input_select_first: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	input_select_last: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	input_select_next: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	input_select_previous: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	input_select_set: {
+		options: {
+			entity_id: string[]
+			option: string
+		}
+	}
+	set_group_on: {
+		options: {
+			entity_id: string[]
+			state: OnOffToggle
+		}
+	}
+	call_service: {
+		options: {
+			entity_id: string[]
+			service: string
+			payload: string
+		}
+	}
 }
 
 export function GetActionsList(
 	getProps: () => { state: HassEntity[]; services: HassServices; client: Connection | undefined },
-): CompanionActionDefinitions {
+): CompanionActionDefinitions<ActionsSchema> {
 	const entityOnOff = async (opt: CompanionActionEvent['options']): Promise<void> => {
 		const { client } = getProps()
 		if (!client) return
@@ -71,23 +135,23 @@ export function GetActionsList(
 		}
 	}
 
-	const actions: { [id in ActionId]: CompanionActionDefinition | undefined } = {
-		[ActionId.SetSwitch]: {
+	const actions: CompanionActionDefinitions<ActionsSchema> = {
+		set_switch: {
 			name: 'Set switch state',
 			options: [EntityMultiplePicker(initialState, 'switch'), OnOffTogglePicker()],
 			callback: async (evt) => entityOnOff(evt.options),
 		},
-		[ActionId.SetInputBoolean]: {
+		set_input_boolean: {
 			name: 'Set input_boolean state',
 			options: [EntityMultiplePicker(initialState, 'input_boolean'), OnOffTogglePicker()],
 			callback: async (evt) => entityOnOff(evt.options),
 		},
-		[ActionId.SetLightOn]: {
+		set_light_on: {
 			name: 'Set light on/off state',
 			options: [pickerLights, OnOffTogglePicker()],
 			callback: async (evt) => entityOnOff(evt.options),
 		},
-		[ActionId.SetLightPercent]: {
+		set_light_pct: {
 			name: 'Set light brightness (percentage)',
 			options: [
 				pickerLights,
@@ -112,7 +176,7 @@ export function GetActionsList(
 				})
 			},
 		},
-		[ActionId.AdjLightPercent]: {
+		adj_light_pct: {
 			name: 'Adjust light brightness (percentage)',
 			options: [
 				pickerLights,
@@ -136,7 +200,7 @@ export function GetActionsList(
 				})
 			},
 		},
-		[ActionId.ExecuteScript]: {
+		execute_script: {
 			name: 'Execute script',
 			options: [EntityMultiplePicker(initialState, 'script')],
 			callback: async (evt) => {
@@ -148,7 +212,7 @@ export function GetActionsList(
 				})
 			},
 		},
-		[ActionId.PressButton]: {
+		press_button: {
 			name: 'Press button',
 			options: [EntityMultiplePicker(initialState, 'button')],
 			callback: async (evt) => {
@@ -160,7 +224,7 @@ export function GetActionsList(
 				})
 			},
 		},
-		[ActionId.ActivateScene]: {
+		activate_scene: {
 			name: 'Activate scene',
 			options: [EntityMultiplePicker(initialState, 'scene')],
 			callback: async (evt) => {
@@ -172,7 +236,7 @@ export function GetActionsList(
 				})
 			},
 		},
-		[ActionId.InputSelectFirst]: {
+		input_select_first: {
 			name: 'Input Select: First',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: async (evt) => {
@@ -184,7 +248,7 @@ export function GetActionsList(
 				})
 			},
 		},
-		[ActionId.InputSelectLast]: {
+		input_select_last: {
 			name: 'Input Select: Last',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: async (evt) => {
@@ -196,7 +260,7 @@ export function GetActionsList(
 				})
 			},
 		},
-		[ActionId.InputSelectNext]: {
+		input_select_next: {
 			name: 'Input Select: Next',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: async (evt) => {
@@ -208,7 +272,7 @@ export function GetActionsList(
 				})
 			},
 		},
-		[ActionId.InputSelectPrevious]: {
+		input_select_previous: {
 			name: 'Input Select: Previous',
 			options: [EntityMultiplePicker(initialState, 'input_select')],
 			callback: async (evt) => {
@@ -220,7 +284,7 @@ export function GetActionsList(
 				})
 			},
 		},
-		[ActionId.InputSelectSet]: {
+		input_select_set: {
 			name: 'Input Select: Select',
 			options: [
 				EntityMultiplePicker(initialState, 'input_select'),
@@ -241,12 +305,12 @@ export function GetActionsList(
 				})
 			},
 		},
-		[ActionId.SetGroupOn]: {
+		set_group_on: {
 			name: 'Set group on/off state',
 			options: [EntityMultiplePicker(initialState, 'group'), OnOffTogglePicker()],
 			callback: async (evt) => entityOnOff(evt.options),
 		},
-		[ActionId.CallService]: {
+		call_service: {
 			name: 'Call Service',
 			description: 'Please open a feature request, so that useful things are properly supported',
 			options: [
@@ -265,6 +329,7 @@ export function GetActionsList(
 					tooltip: 'Must be valid JSON!',
 					default: '{ "option": "value" }',
 					label: 'Payload',
+					useVariables: true,
 				},
 			],
 			callback: async (evt) => {
@@ -272,7 +337,7 @@ export function GetActionsList(
 				if (!client) return
 
 				try {
-					const payload = JSON.parse(evt.options.payload as string)
+					const payload = JSON.parse(evt.options.payload)
 
 					// Split the domain off of the service name
 					const [domain, service] = `${evt.options.service}`.split('.', 2)
@@ -280,7 +345,7 @@ export function GetActionsList(
 
 					const target: HassServiceTarget = {}
 
-					const selectedEntities = evt.options.entity_id as string[]
+					const selectedEntities = evt.options.entity_id
 					if (selectedEntities.length > 0) {
 						if (serviceDefinition.fields.entity_id) {
 							const entityIdSelector = serviceDefinition.fields.entity_id.selector as any | undefined
