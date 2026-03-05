@@ -1,5 +1,7 @@
 {
+	"$schema": "../node_modules/@companion-module/base/assets/manifest.schema.json",
 	"id": "homeassistant-server",
+	"type": "connection",
 	"name": "homeassistant-server",
 	"shortname": "homeassistant-server",
 	"description": "Home Assistant Server",
