@@ -3,6 +3,9 @@ import { SomeCompanionConfigField } from '@companion-module/base'
 export type DeviceConfig = {
 	url?: string
 	ignore_certificates?: boolean
+}
+
+export type DeviceSecrets = {
 	access_token?: string
 }
 
@@ -22,7 +25,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			default: false,
 		},
 		{
-			type: 'textinput',
+			type: 'secret-text',
 			id: 'access_token',
 			label: 'Access Token',
 			width: 6,

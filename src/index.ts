@@ -9,7 +9,7 @@ import {
 	HassEntities,
 } from 'home-assistant-js-websocket'
 import { GetActionsList } from './actions.js'
-import { type DeviceConfig, GetConfigFields } from './config.js'
+import { type DeviceConfig, DeviceSecrets, GetConfigFields } from './config.js'
 import { GetFeedbacksList } from './feedback.js'
 import { createSocket, hassErrorToString } from './hass-socket.js'
 import { GetPresetsList } from './presets.js'
@@ -30,6 +30,7 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 	public needsReconnect: boolean
 
 	private config: DeviceConfig
+	private secrets: DeviceSecrets
 	private state: HassEntity[]
 	private stateObj: HassEntities
 	private services: HassServices
@@ -45,6 +46,8 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 		super(internal)
 
 		this.config = {}
+		this.secrets = {}
+
 		this.connecting = false
 		this.state = []
 		this.stateObj = {}
@@ -56,10 +59,8 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 	 * Main initialization function called once the module
 	 * is OK to start doing things.
 	 */
-	public async init(config: DeviceConfig): Promise<void> {
-		this.config = config
-
-		await this.configUpdated(this.config)
+	public async init(config: DeviceConfig, _isFirst: boolean, secrets: DeviceSecrets): Promise<void> {
+		await this.configUpdated(config, secrets)
 
 		InitVariables(this, this.state)
 		this.setPresetDefinitions(...GetPresetsList(this.state))
@@ -73,8 +74,9 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 	/**
 	 * Process an updated configuration array.
 	 */
-	public async configUpdated(config: DeviceConfig): Promise<void> {
+	public async configUpdated(config: DeviceConfig, secrets: DeviceSecrets): Promise<void> {
 		this.config = config
+		this.secrets = secrets
 
 		if (this.connecting) {
 			this.needsReconnect = true
@@ -154,7 +156,7 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 		this.connecting = true
 		this.needsReconnect = false
 
-		const auth = createLongLivedTokenAuth(stripTrailingSlash(this.config.url || ''), this.config.access_token || '')
+		const auth = createLongLivedTokenAuth(stripTrailingSlash(this.config.url || ''), this.secrets.access_token || '')
 
 		createConnection({
 			auth,
