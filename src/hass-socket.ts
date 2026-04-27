@@ -179,6 +179,8 @@ export async function createSocket(
 							}),
 						)
 					}
+
+					promResolve(socket2)
 					break
 				}
 
