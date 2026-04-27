@@ -194,8 +194,15 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 				})
 				connection.addEventListener('reconnect-error', () => {
 					this.connecting = false
+					this.client = undefined
 					this.updateStatus(InstanceStatus.ConnectionFailure, 'Reconnect failed')
 					this.log('info', `Reconnect failed`)
+					try {
+						connection.close()
+					} catch (_e) {
+						// Ignore
+					}
+					setTimeout(() => this.tryConnect(), RECONNECT_INTERVAL)
 				})
 
 				this.unsubscribeServices = subscribeServices(connection, this.processServicesChange.bind(this))
