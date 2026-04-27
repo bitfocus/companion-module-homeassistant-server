@@ -201,7 +201,7 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 				this.unsubscribeServices = subscribeServices(connection, this.processServicesChange.bind(this))
 				this.unsubscribeEntities = entitiesColl(connection).subscribe(this.deboundProcessStateChange.bind(this))
 			})
-			.catch((e: number | string) => {
+			.catch((e) => {
 				this.connecting = false
 				this.client = undefined
 
@@ -211,7 +211,17 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 					return
 				}
 
-				const errorMsg = typeof e === 'number' ? hassErrorToString(e) : e
+				let errorMsg: string
+				if (typeof e === 'number') {
+					errorMsg = hassErrorToString(e)
+				} else if (e instanceof Error) {
+					errorMsg = e.message
+				} else if (typeof e === 'string') {
+					errorMsg = e
+				} else {
+					errorMsg = JSON.stringify(e)
+				}
+
 				this.client = undefined
 				this.updateStatus(InstanceStatus.UnknownError, errorMsg)
 				this.log('error', `Connect failed: ${errorMsg}`)
