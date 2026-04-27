@@ -10,6 +10,10 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### v2.0.3
+
+- Fix bad merge
+
 ### v2.0.2
 
 - Fix invalid status messages
