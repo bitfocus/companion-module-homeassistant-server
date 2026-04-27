@@ -165,7 +165,20 @@ export async function createSocket(
 					})
 
 					socket2.haVersion = message.ha_version
-					promResolve(socket2)
+
+					// Send supported features to enable message coalescing (HA >= 2022.9)
+					const versionParts = socket2.haVersion.split('.')
+					const year = parseInt(versionParts[0], 10)
+					const month = versionParts[1] ? parseInt(versionParts[1], 10) : 0
+					if (year > 2022 || (year === 2022 && month >= 9)) {
+						socket.send(
+							JSON.stringify({
+								id: 1,
+								type: 'supported_features',
+								features: { coalesce_messages: 1 },
+							}),
+						)
+					}
 					break
 				}
 
