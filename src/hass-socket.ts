@@ -27,6 +27,8 @@ export function hassErrorToString(e: number): string {
 	}
 }
 
+const HEARTBEAT_INTERVAL = 30000 // 30 seconds
+
 export async function createSocket(
 	auth: ha.Auth,
 	ignoreCertificates: boolean,
@@ -53,6 +55,8 @@ export async function createSocket(
 
 		const socket = new WebSocket(url, {
 			rejectUnauthorized: !ignoreCertificates,
+			// Enable heartbeat to detect broken connections
+			handshakeTimeout: 10000,
 		})
 
 		// If invalid auth, we will not try to reconnect.
@@ -137,6 +141,29 @@ export async function createSocket(
 					socket.removeEventListener('error', errorMessage)
 
 					const socket2 = socket as unknown as ha.HaWebSocket
+
+					// Set up heartbeat to detect dead connections
+					let isAlive = true
+					const heartbeatInterval = setInterval(() => {
+						if (isAlive === false) {
+							instance.log('debug', 'Heartbeat timeout - connection appears dead')
+							clearInterval(heartbeatInterval)
+							socket.terminate()
+							return
+						}
+
+						isAlive = false
+						socket.ping()
+					}, HEARTBEAT_INTERVAL)
+
+					socket.on('pong', () => {
+						isAlive = true
+					})
+
+					socket.on('close', () => {
+						clearInterval(heartbeatInterval)
+					})
+
 					socket2.haVersion = message.ha_version
 					promResolve(socket2)
 					break
