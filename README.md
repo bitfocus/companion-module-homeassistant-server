@@ -10,6 +10,25 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### v2.0.2
+
+- Fix invalid status messages
+- Fix connection breaking when server restarts
+- Performance tweaks
+
+### v2.0.1
+
+- Move access token to 'secret' input field type
+
+### v2.0.0
+
+- Update to Module API 2.0
+- Support expressions in all action/feedback input fields
+
+### v1.2.1
+
+- Fix invalid status messages
+
 ### v1.2.0
 
 - Variables for entity attributes
