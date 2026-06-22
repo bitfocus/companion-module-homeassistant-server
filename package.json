@@ -29,7 +29,7 @@
 		"@companion-module/base": "^2.0.4",
 		"debounce-fn": "^6.0.0",
 		"home-assistant-js-websocket": "^9.6.0",
-		"ws": "^8.20.1"
+		"ws": "^8.21.0"
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^3.0.1",
