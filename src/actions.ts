@@ -6,7 +6,7 @@ import {
 	type HassServiceTarget,
 } from 'home-assistant-js-websocket'
 import type { CompanionActionEvent, CompanionActionDefinitions, DropdownChoice } from '@companion-module/base'
-import { EntityMultiplePicker, LockStatePicker, OnOffTogglePicker } from './choices.js'
+import { EntityMultiplePicker, LockStatePicker, HvacModePicker, OnOffTogglePicker } from './choices.js'
 import { LockToggle, OnOffToggle } from './util.js'
 
 export type ActionsSchema = {
@@ -91,6 +91,50 @@ export type ActionsSchema = {
 		options: {
 			entity_id: string[]
 			state: LockToggle
+		}
+	}
+	cover_open: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	cover_close: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	cover_stop: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	cover_toggle: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	cover_set_position: {
+		options: {
+			entity_id: string[]
+			position: number
+		}
+	}
+	set_climate_on: {
+		options: {
+			entity_id: string[]
+			state: OnOffToggle
+		}
+	}
+	climate_set_hvac_mode: {
+		options: {
+			entity_id: string[]
+			hvac_mode: string
+		}
+	}
+	climate_set_temperature: {
+		options: {
+			entity_id: string[]
+			temperature: number
 		}
 	}
 	call_service: {
@@ -338,6 +382,139 @@ export function GetActionsList(
 						entity_id: entityId,
 					})
 				}
+			},
+		},
+		cover_open: {
+			name: 'Cover: Open',
+			options: [EntityMultiplePicker(initialState, 'cover')],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'cover', 'open_cover', {
+					entity_id: evt.options.entity_id,
+				})
+			},
+		},
+		cover_close: {
+			name: 'Cover: Close',
+			options: [EntityMultiplePicker(initialState, 'cover')],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'cover', 'close_cover', {
+					entity_id: evt.options.entity_id,
+				})
+			},
+		},
+		cover_stop: {
+			name: 'Cover: Stop',
+			options: [EntityMultiplePicker(initialState, 'cover')],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'cover', 'stop_cover', {
+					entity_id: evt.options.entity_id,
+				})
+			},
+		},
+		cover_toggle: {
+			name: 'Cover: Toggle open/close',
+			options: [EntityMultiplePicker(initialState, 'cover')],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'cover', 'toggle', {
+					entity_id: evt.options.entity_id,
+				})
+			},
+		},
+		cover_set_position: {
+			name: 'Cover: Set position (percentage)',
+			options: [
+				EntityMultiplePicker(initialState, 'cover'),
+				{
+					type: 'number',
+					label: 'Position (0 = closed, 100 = open)',
+					id: 'position',
+					default: 50,
+					min: 0,
+					max: 100,
+					step: 1,
+					range: true,
+				},
+			],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'cover', 'set_cover_position', {
+					entity_id: evt.options.entity_id,
+					position: Number(evt.options.position),
+				})
+			},
+		},
+		set_climate_on: {
+			name: 'Climate: Set on/off state',
+			options: [EntityMultiplePicker(initialState, 'climate'), OnOffTogglePicker()],
+			callback: async (evt) => {
+				const { client, state } = getProps()
+				if (!client) return
+
+				const mode = evt.options.state
+				for (const entityId of evt.options.entity_id) {
+					let service: string
+					if (mode === OnOffToggle.Toggle) {
+						const entity = state.find((ent) => ent.entity_id === entityId)
+						service = entity && entity.state !== 'off' ? 'turn_off' : 'turn_on'
+					} else {
+						service = mode === OnOffToggle.Off ? 'turn_off' : 'turn_on'
+					}
+
+					await callService(client, 'climate', service, {
+						entity_id: entityId,
+					})
+				}
+			},
+		},
+		climate_set_hvac_mode: {
+			name: 'Climate: Set HVAC mode',
+			options: [EntityMultiplePicker(initialState, 'climate'), HvacModePicker()],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'climate', 'set_hvac_mode', {
+					entity_id: evt.options.entity_id,
+					hvac_mode: evt.options.hvac_mode,
+				})
+			},
+		},
+		climate_set_temperature: {
+			name: 'Climate: Set target temperature',
+			options: [
+				EntityMultiplePicker(initialState, 'climate'),
+				{
+					type: 'number',
+					label: 'Target temperature',
+					id: 'temperature',
+					default: 20,
+					min: -50,
+					max: 100,
+					step: 0.5,
+				},
+			],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'climate', 'set_temperature', {
+					entity_id: evt.options.entity_id,
+					temperature: Number(evt.options.temperature),
+				})
 			},
 		},
 		call_service: {

@@ -25,6 +25,14 @@
 - Input Select: Select
 - Set group on/off state
 - Set lock state (lock / unlock / toggle)
+- Cover: Open
+- Cover: Close
+- Cover: Stop
+- Cover: Toggle open/close
+- Cover: Set position (percentage)
+- Climate: Set on/off state
+- Climate: Set HVAC mode
+- Climate: Set target temperature
 - Call Service
 
 **Available feedbacks**
@@ -36,6 +44,9 @@
 - Input select state
 - Group on state
 - Lock state
+- Cover open/closed state
+- Climate HVAC mode
+- Climate HVAC action
 
 **Available variables**
 
