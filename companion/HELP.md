@@ -29,6 +29,9 @@
 - Cover: Stop
 - Cover: Toggle open/close
 - Cover: Set position (percentage)
+- Climate: Set on/off state
+- Climate: Set HVAC mode
+- Climate: Set target temperature
 - Call Service
 
 **Available feedbacks**
@@ -39,7 +42,13 @@
 - Binary sensor state
 - Input select state
 - Group on state
+  <<<<<<< HEAD
 - Cover open/closed state
+  ||||||| b350201
+  =======
+- Climate HVAC mode
+- Climate HVAC action
+  > > > > > > > main
 
 **Available variables**
 

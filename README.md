@@ -13,6 +13,7 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 ### Unreleased
 
 - Add support for cover entities: open, close, stop, toggle, and set position actions, an open/closed state feedback, and a cover preset
+- Add support for climate entities: on/off, set HVAC mode and set target temperature actions, plus HVAC mode and HVAC action feedbacks
 
 ### v2.0.3
 
