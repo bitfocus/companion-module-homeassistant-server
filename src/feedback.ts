@@ -4,7 +4,7 @@ import type {
 	CompanionFeedbackInfo,
 } from '@companion-module/base'
 import type { HassEntities, HassEntity } from 'home-assistant-js-websocket'
-import { EntityPicker, OnOffPicker } from './choices.js'
+import { EntityPicker, HvacModePicker, OnOffPicker } from './choices.js'
 import { EntitySubscriptions } from './state.js'
 
 export type FeedbackId = keyof FeedbacksSchema
@@ -50,6 +50,20 @@ export type FeedbacksSchema = {
 		options: {
 			entity_id: string
 			state: boolean
+		}
+	}
+	climate_hvac_mode: {
+		type: 'boolean'
+		options: {
+			entity_id: string
+			hvac_mode: string
+		}
+	}
+	climate_hvac_action: {
+		type: 'boolean'
+		options: {
+			entity_id: string
+			hvac_action: string
 		}
 	}
 }
@@ -181,6 +195,54 @@ export function GetFeedbacksList(
 			callback: (feedback): boolean => {
 				subscribeEntityPicker(feedback)
 				return checkEntityOnOffState(feedback)
+			},
+			unsubscribe: unsubscribeEntityPicker,
+		},
+		climate_hvac_mode: {
+			type: 'boolean',
+			name: 'Change from climate HVAC mode',
+			description: 'If the climate HVAC mode matches the rule, change style of the bank',
+			options: [EntityPicker(initialState, 'climate'), HvacModePicker()],
+			defaultStyle: {
+				color: 0x000000,
+				bgcolor: 0x00ff00,
+			},
+			callback: (feedback): boolean => {
+				subscribeEntityPicker(feedback)
+				const state = getState()
+				const entity = state[feedback.options.entity_id]
+				if (entity) {
+					return entity.state === feedback.options.hvac_mode
+				}
+				return false
+			},
+			unsubscribe: unsubscribeEntityPicker,
+		},
+		climate_hvac_action: {
+			type: 'boolean',
+			name: 'Change from climate HVAC action',
+			description: 'Match the current HVAC action attribute, e.g. heating, cooling, idle, off',
+			options: [
+				EntityPicker(initialState, 'climate'),
+				{
+					type: 'textinput',
+					id: 'hvac_action',
+					label: 'HVAC action',
+					default: 'heating',
+				},
+			],
+			defaultStyle: {
+				color: 0x000000,
+				bgcolor: 0x00ff00,
+			},
+			callback: (feedback): boolean => {
+				subscribeEntityPicker(feedback)
+				const state = getState()
+				const entity = state[feedback.options.entity_id]
+				if (entity) {
+					return entity.attributes?.hvac_action === feedback.options.hvac_action
+				}
+				return false
 			},
 			unsubscribe: unsubscribeEntityPicker,
 		},
