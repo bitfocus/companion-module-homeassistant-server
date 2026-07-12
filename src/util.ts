@@ -4,6 +4,12 @@ export enum OnOffToggle {
 	Toggle = 'toggle',
 }
 
+export enum LockToggle {
+	Lock = 'lock',
+	Unlock = 'unlock',
+	Toggle = 'toggle',
+}
+
 export function assertUnreachable(_never: never): void {
 	// throw new Error('Unreachable')
 }

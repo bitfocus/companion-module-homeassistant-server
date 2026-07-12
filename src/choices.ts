@@ -5,7 +5,7 @@ import {
 	DropdownChoice,
 } from '@companion-module/base'
 import type { HassEntity } from 'home-assistant-js-websocket'
-import { OnOffToggle } from './util.js'
+import { LockToggle, OnOffToggle } from './util.js'
 
 export const LIGHT_MAX_BRIGHTNESS = 255
 
@@ -31,6 +31,22 @@ export function OnOffPicker(): CompanionInputFieldCheckbox<'state'> {
 		label: 'State',
 		id: 'state',
 		default: true,
+	}
+}
+
+export function LockStatePicker(): CompanionInputFieldDropdown<'state'> {
+	const options = [
+		{ id: LockToggle.Lock, label: 'Lock' },
+		{ id: LockToggle.Unlock, label: 'Unlock' },
+		{ id: LockToggle.Toggle, label: 'Toggle' },
+	]
+	return {
+		type: 'dropdown',
+		label: 'Action',
+		id: 'state',
+		default: LockToggle.Lock,
+		choices: options,
+		disableAutoExpression: true,
 	}
 }
 

@@ -52,6 +52,13 @@ export type FeedbacksSchema = {
 			state: boolean
 		}
 	}
+	lock_state: {
+		type: 'boolean'
+		options: {
+			entity_id: string
+			locked: boolean
+		}
+	}
 	cover_state: {
 		type: 'boolean'
 		options: {
@@ -205,6 +212,35 @@ export function GetFeedbacksList(
 			},
 			unsubscribe: unsubscribeEntityPicker,
 		},
+		lock_state: {
+			type: 'boolean',
+			name: 'Change from lock state',
+			description: 'If the lock state matches the rule, change style of the bank',
+			options: [
+				EntityPicker(initialState, 'lock'),
+				{
+					type: 'checkbox',
+					label: 'Locked',
+					id: 'locked',
+					default: true,
+				},
+			],
+			defaultStyle: {
+				color: 0x000000,
+				bgcolor: 0x00ff00,
+			},
+			callback: (feedback): boolean => {
+				subscribeEntityPicker(feedback)
+				const state = getState()
+				const entity = state[feedback.options.entity_id]
+				if (entity) {
+					const isLocked = entity.state === 'locked'
+					return isLocked === !!feedback.options.locked
+				}
+				return false
+			},
+			unsubscribe: unsubscribeEntityPicker,
+		},
 		cover_state: {
 			type: 'boolean',
 			name: 'Change from cover open/closed state',
@@ -232,6 +268,7 @@ export function GetFeedbacksList(
 				}
 				return false
 			},
+			unsubscribe: unsubscribeEntityPicker,
 		},
 		climate_hvac_mode: {
 			type: 'boolean',
