@@ -42,13 +42,9 @@
 - Binary sensor state
 - Input select state
 - Group on state
-  <<<<<<< HEAD
 - Cover open/closed state
-  ||||||| b350201
-  =======
 - Climate HVAC mode
 - Climate HVAC action
-  > > > > > > > main
 
 **Available variables**
 
