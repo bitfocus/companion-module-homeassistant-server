@@ -97,7 +97,12 @@ export type ActionsSchema = {
 }
 
 export function GetActionsList(
-	getProps: () => { state: HassEntity[]; services: HassServices; client: Connection | undefined },
+	getProps: () => {
+		state: HassEntity[]
+		services: HassServices
+		client: Connection | undefined
+		log?: (level: 'debug' | 'info' | 'warn' | 'error', message: string) => void
+	},
 ): CompanionActionDefinitions<ActionsSchema> {
 	const entityOnOff = async (opt: CompanionActionEvent['options']): Promise<void> => {
 		const { client } = getProps()
@@ -333,7 +338,7 @@ export function GetActionsList(
 				},
 			],
 			callback: async (evt) => {
-				const { client } = getProps()
+				const { client, log } = getProps()
 				if (!client) return
 
 				try {
@@ -365,7 +370,8 @@ export function GetActionsList(
 
 					await callService(client, domain, service, payload, target)
 				} catch (e) {
-					console.debug(`Call service failed: ${e}`)
+					const message = e instanceof Error ? e.message : String(e)
+					log?.('warn', `Call service '${evt.options.service}' failed: ${message}`)
 				}
 			},
 		},

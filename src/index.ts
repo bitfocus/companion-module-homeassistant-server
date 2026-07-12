@@ -66,7 +66,12 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 		this.setPresetDefinitions(...GetPresetsList(this.state))
 		this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
 		this.setActionDefinitions(
-			GetActionsList(() => ({ state: this.state, services: this.services, client: this.client })),
+			GetActionsList(() => ({
+				state: this.state,
+				services: this.services,
+				client: this.client,
+				log: (level, message) => this.log(level, message),
+			})),
 		)
 		// updateVariables(this, this.state) No need, there are no entities
 	}
@@ -297,7 +302,12 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 				this.setPresetDefinitions(...GetPresetsList(this.state))
 				this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
 				this.setActionDefinitions(
-					GetActionsList(() => ({ state: this.state, client: this.client, services: this.services })),
+					GetActionsList(() => ({
+						state: this.state,
+						client: this.client,
+						services: this.services,
+						log: (level, message) => this.log(level, message),
+					})),
 				)
 				InitVariables(this, this.state)
 			}
@@ -340,7 +350,12 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 		this.services = services
 
 		this.setActionDefinitions(
-			GetActionsList(() => ({ state: this.state, client: this.client, services: this.services })),
+			GetActionsList(() => ({
+				state: this.state,
+				client: this.client,
+				services: this.services,
+				log: (level, message) => this.log(level, message),
+			})),
 		)
 	}
 }

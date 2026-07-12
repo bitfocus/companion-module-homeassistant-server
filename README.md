@@ -10,6 +10,10 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### Unreleased
+
+- Report Call Service failures to the Companion log instead of swallowing them
+
 ### v2.0.3
 
 - Fix bad merge
