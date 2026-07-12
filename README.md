@@ -10,6 +10,10 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### Unreleased
+
+- Add support for climate entities: on/off, set HVAC mode and set target temperature actions, plus HVAC mode and HVAC action feedbacks
+
 ### v2.0.3
 
 - Fix bad merge

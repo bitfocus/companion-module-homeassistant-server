@@ -34,6 +34,21 @@ export function OnOffPicker(): CompanionInputFieldCheckbox<'state'> {
 	}
 }
 
+// The set of hvac modes defined by Home Assistant. Individual climate entities
+// typically support only a subset, so the picker allows custom values too.
+export const HVAC_MODES = ['off', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only']
+
+export function HvacModePicker(): CompanionInputFieldDropdown<'hvac_mode'> {
+	return {
+		type: 'dropdown',
+		label: 'HVAC mode',
+		id: 'hvac_mode',
+		default: 'heat',
+		choices: HVAC_MODES.map((mode) => ({ id: mode, label: mode })),
+		allowCustom: true,
+	}
+}
+
 function EntityOptions(state: HassEntity[], prefix: string | undefined): DropdownChoice<string>[] {
 	const entities = state.filter((ent) => prefix === undefined || ent.entity_id.indexOf(`${prefix}.`) === 0)
 

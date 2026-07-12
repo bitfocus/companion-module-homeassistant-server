@@ -6,7 +6,7 @@ import {
 	type HassServiceTarget,
 } from 'home-assistant-js-websocket'
 import type { CompanionActionEvent, CompanionActionDefinitions, DropdownChoice } from '@companion-module/base'
-import { EntityMultiplePicker, OnOffTogglePicker } from './choices.js'
+import { EntityMultiplePicker, HvacModePicker, OnOffTogglePicker } from './choices.js'
 import { OnOffToggle } from './util.js'
 
 export type ActionsSchema = {
@@ -85,6 +85,24 @@ export type ActionsSchema = {
 		options: {
 			entity_id: string[]
 			state: OnOffToggle
+		}
+	}
+	set_climate_on: {
+		options: {
+			entity_id: string[]
+			state: OnOffToggle
+		}
+	}
+	climate_set_hvac_mode: {
+		options: {
+			entity_id: string[]
+			hvac_mode: string
+		}
+	}
+	climate_set_temperature: {
+		options: {
+			entity_id: string[]
+			temperature: number
 		}
 	}
 	call_service: {
@@ -309,6 +327,66 @@ export function GetActionsList(
 			name: 'Set group on/off state',
 			options: [EntityMultiplePicker(initialState, 'group'), OnOffTogglePicker()],
 			callback: async (evt) => entityOnOff(evt.options),
+		},
+		set_climate_on: {
+			name: 'Climate: Set on/off state',
+			options: [EntityMultiplePicker(initialState, 'climate'), OnOffTogglePicker()],
+			callback: async (evt) => {
+				const { client, state } = getProps()
+				if (!client) return
+
+				const mode = evt.options.state
+				for (const entityId of evt.options.entity_id) {
+					let service: string
+					if (mode === OnOffToggle.Toggle) {
+						const entity = state.find((ent) => ent.entity_id === entityId)
+						service = entity && entity.state !== 'off' ? 'turn_off' : 'turn_on'
+					} else {
+						service = mode === OnOffToggle.Off ? 'turn_off' : 'turn_on'
+					}
+
+					await callService(client, 'climate', service, {
+						entity_id: entityId,
+					})
+				}
+			},
+		},
+		climate_set_hvac_mode: {
+			name: 'Climate: Set HVAC mode',
+			options: [EntityMultiplePicker(initialState, 'climate'), HvacModePicker()],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'climate', 'set_hvac_mode', {
+					entity_id: evt.options.entity_id,
+					hvac_mode: evt.options.hvac_mode,
+				})
+			},
+		},
+		climate_set_temperature: {
+			name: 'Climate: Set target temperature',
+			options: [
+				EntityMultiplePicker(initialState, 'climate'),
+				{
+					type: 'number',
+					label: 'Target temperature',
+					id: 'temperature',
+					default: 20,
+					min: -50,
+					max: 100,
+					step: 0.5,
+				},
+			],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'climate', 'set_temperature', {
+					entity_id: evt.options.entity_id,
+					temperature: Number(evt.options.temperature),
+				})
+			},
 		},
 		call_service: {
 			name: 'Call Service',

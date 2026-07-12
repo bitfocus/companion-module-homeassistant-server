@@ -24,6 +24,9 @@
 - Input Select: Previous
 - Input Select: Select
 - Set group on/off state
+- Climate: Set on/off state
+- Climate: Set HVAC mode
+- Climate: Set target temperature
 - Call Service
 
 **Available feedbacks**
@@ -34,6 +37,8 @@
 - Binary sensor state
 - Input select state
 - Group on state
+- Climate HVAC mode
+- Climate HVAC action
 
 **Available variables**
 
