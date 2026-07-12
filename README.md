@@ -10,6 +10,10 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### Unreleased
+
+- Add support for lock entities: lock, unlock and toggle actions, a locked state feedback, and a lock preset
+
 ### v2.0.3
 
 - Fix bad merge

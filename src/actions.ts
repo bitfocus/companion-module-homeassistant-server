@@ -6,8 +6,8 @@ import {
 	type HassServiceTarget,
 } from 'home-assistant-js-websocket'
 import type { CompanionActionEvent, CompanionActionDefinitions, DropdownChoice } from '@companion-module/base'
-import { EntityMultiplePicker, OnOffTogglePicker } from './choices.js'
-import { OnOffToggle } from './util.js'
+import { EntityMultiplePicker, LockStatePicker, OnOffTogglePicker } from './choices.js'
+import { LockToggle, OnOffToggle } from './util.js'
 
 export type ActionsSchema = {
 	set_switch: {
@@ -85,6 +85,12 @@ export type ActionsSchema = {
 		options: {
 			entity_id: string[]
 			state: OnOffToggle
+		}
+	}
+	set_lock: {
+		options: {
+			entity_id: string[]
+			state: LockToggle
 		}
 	}
 	call_service: {
@@ -309,6 +315,30 @@ export function GetActionsList(
 			name: 'Set group on/off state',
 			options: [EntityMultiplePicker(initialState, 'group'), OnOffTogglePicker()],
 			callback: async (evt) => entityOnOff(evt.options),
+		},
+		set_lock: {
+			name: 'Set lock state',
+			options: [EntityMultiplePicker(initialState, 'lock'), LockStatePicker()],
+			callback: async (evt) => {
+				const { client, state } = getProps()
+				if (!client) return
+
+				const mode = evt.options.state
+				for (const entityId of evt.options.entity_id) {
+					let service: string
+					if (mode === LockToggle.Toggle) {
+						// Home Assistant has no lock.toggle service, so pick the opposite of the current state
+						const entity = state.find((ent) => ent.entity_id === entityId)
+						service = entity?.state === 'locked' ? 'unlock' : 'lock'
+					} else {
+						service = mode === LockToggle.Unlock ? 'unlock' : 'lock'
+					}
+
+					await callService(client, 'lock', service, {
+						entity_id: entityId,
+					})
+				}
+			},
 		},
 		call_service: {
 			name: 'Call Service',

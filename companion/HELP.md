@@ -24,6 +24,7 @@
 - Input Select: Previous
 - Input Select: Select
 - Set group on/off state
+- Set lock state (lock / unlock / toggle)
 - Call Service
 
 **Available feedbacks**
@@ -34,6 +35,7 @@
 - Binary sensor state
 - Input select state
 - Group on state
+- Lock state
 
 **Available variables**
 

@@ -1,7 +1,7 @@
 import type { CompanionPresetSection, CompanionPresetDefinitions } from '@companion-module/base'
 import type { HassEntity } from 'home-assistant-js-websocket'
 import { EntityPicker } from './choices.js'
-import { OnOffToggle } from './util.js'
+import { LockToggle, OnOffToggle } from './util.js'
 import type { HassSchema } from './schema.js'
 
 export function GetPresetsList(
@@ -425,6 +425,72 @@ export function GetPresetsList(
 					templateVariableName: 'entity-id',
 					templateValues: groupChoices.map((ent) => ({
 						label: `Group ${ent.label}`,
+						value: ent.id,
+					})),
+				},
+			],
+		})
+	}
+
+	const lockChoices = EntityPicker(state, 'lock').choices
+	if (lockChoices.length > 0) {
+		presets[`lock_toggle`] = {
+			type: 'simple',
+			name: `Lock X`,
+			style: {
+				text: `$(homeassistant-server:entity.$(local:entity-id))`,
+				size: 'auto',
+				color: 0xffffff,
+				bgcolor: 0x000000,
+			},
+			feedbacks: [
+				{
+					feedbackId: 'lock_state',
+					options: {
+						entity_id: { isExpression: true, value: '$(local:entity-id)' },
+						locked: true,
+					},
+					style: {
+						bgcolor: 0x00ff00,
+						color: 0x000000,
+					},
+				},
+			],
+			steps: [
+				{
+					down: [
+						{
+							actionId: 'set_lock',
+							options: {
+								entity_id: { isExpression: true, value: '[$(local:entity-id)]' },
+								state: LockToggle.Toggle,
+							},
+						},
+					],
+					up: [],
+				},
+			],
+			localVariables: [
+				{
+					variableType: 'simple',
+					variableName: 'entity-id',
+					startupValue: '',
+				},
+			],
+		}
+
+		sections.push({
+			id: 'lock',
+			name: 'Lock',
+			definitions: [
+				{
+					id: 'lock_toggle',
+					name: '',
+					type: 'template',
+					presetId: 'lock_toggle',
+					templateVariableName: 'entity-id',
+					templateValues: lockChoices.map((ent) => ({
+						label: `Lock ${ent.label}`,
 						value: ent.id,
 					})),
 				},
