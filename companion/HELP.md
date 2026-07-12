@@ -24,6 +24,11 @@
 - Input Select: Previous
 - Input Select: Select
 - Set group on/off state
+- Cover: Open
+- Cover: Close
+- Cover: Stop
+- Cover: Toggle open/close
+- Cover: Set position (percentage)
 - Call Service
 
 **Available feedbacks**
@@ -34,6 +39,7 @@
 - Binary sensor state
 - Input select state
 - Group on state
+- Cover open/closed state
 
 **Available variables**
 

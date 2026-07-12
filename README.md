@@ -10,6 +10,10 @@ While developing the module, by using `yarn dev` the compiler will be run in wat
 
 ## Changes
 
+### Unreleased
+
+- Add support for cover entities: open, close, stop, toggle, and set position actions, an open/closed state feedback, and a cover preset
+
 ### v2.0.3
 
 - Fix bad merge

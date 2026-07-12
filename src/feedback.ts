@@ -52,6 +52,13 @@ export type FeedbacksSchema = {
 			state: boolean
 		}
 	}
+	cover_state: {
+		type: 'boolean'
+		options: {
+			entity_id: string
+			state: boolean
+		}
+	}
 }
 
 export function GetFeedbacksList(
@@ -181,6 +188,35 @@ export function GetFeedbacksList(
 			callback: (feedback): boolean => {
 				subscribeEntityPicker(feedback)
 				return checkEntityOnOffState(feedback)
+			},
+			unsubscribe: unsubscribeEntityPicker,
+		},
+		cover_state: {
+			type: 'boolean',
+			name: 'Change from cover open/closed state',
+			description: 'If the cover open/closed state matches the rule, change style of the bank',
+			options: [
+				EntityPicker(initialState, 'cover'),
+				{
+					type: 'checkbox',
+					label: 'Open',
+					id: 'state',
+					default: true,
+				},
+			],
+			defaultStyle: {
+				color: 0x000000,
+				bgcolor: 0x00ff00,
+			},
+			callback: (feedback): boolean => {
+				subscribeEntityPicker(feedback)
+				const state = getState()
+				const entity = state[feedback.options.entity_id]
+				if (entity) {
+					const isOpen = entity.state === 'open'
+					return isOpen === !!feedback.options.state
+				}
+				return false
 			},
 			unsubscribe: unsubscribeEntityPicker,
 		},

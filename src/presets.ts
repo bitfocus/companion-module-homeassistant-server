@@ -432,5 +432,70 @@ export function GetPresetsList(
 		})
 	}
 
+	const coverChoices = EntityPicker(state, 'cover').choices
+	if (coverChoices.length > 0) {
+		presets[`cover_toggle`] = {
+			type: 'simple',
+			name: `Cover X`,
+			style: {
+				text: `$(homeassistant-server:entity.$(local:entity-id))`,
+				size: 'auto',
+				color: 0xffffff,
+				bgcolor: 0x000000,
+			},
+			feedbacks: [
+				{
+					feedbackId: 'cover_state',
+					options: {
+						entity_id: { isExpression: true, value: '$(local:entity-id)' },
+						state: true,
+					},
+					style: {
+						bgcolor: 0x00ff00,
+						color: 0x000000,
+					},
+				},
+			],
+			steps: [
+				{
+					down: [
+						{
+							actionId: 'cover_toggle',
+							options: {
+								entity_id: { isExpression: true, value: '[$(local:entity-id)]' },
+							},
+						},
+					],
+					up: [],
+				},
+			],
+			localVariables: [
+				{
+					variableType: 'simple',
+					variableName: 'entity-id',
+					startupValue: '',
+				},
+			],
+		}
+
+		sections.push({
+			id: 'cover',
+			name: 'Cover',
+			definitions: [
+				{
+					id: 'cover_toggle',
+					name: '',
+					type: 'template',
+					presetId: 'cover_toggle',
+					templateVariableName: 'entity-id',
+					templateValues: coverChoices.map((ent) => ({
+						label: `Cover ${ent.label}`,
+						value: ent.id,
+					})),
+				},
+			],
+		})
+	}
+
 	return [sections, presets]
 }

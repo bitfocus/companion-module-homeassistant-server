@@ -87,6 +87,32 @@ export type ActionsSchema = {
 			state: OnOffToggle
 		}
 	}
+	cover_open: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	cover_close: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	cover_stop: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	cover_toggle: {
+		options: {
+			entity_id: string[]
+		}
+	}
+	cover_set_position: {
+		options: {
+			entity_id: string[]
+			position: number
+		}
+	}
 	call_service: {
 		options: {
 			entity_id: string[]
@@ -309,6 +335,79 @@ export function GetActionsList(
 			name: 'Set group on/off state',
 			options: [EntityMultiplePicker(initialState, 'group'), OnOffTogglePicker()],
 			callback: async (evt) => entityOnOff(evt.options),
+		},
+		cover_open: {
+			name: 'Cover: Open',
+			options: [EntityMultiplePicker(initialState, 'cover')],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'cover', 'open_cover', {
+					entity_id: evt.options.entity_id,
+				})
+			},
+		},
+		cover_close: {
+			name: 'Cover: Close',
+			options: [EntityMultiplePicker(initialState, 'cover')],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'cover', 'close_cover', {
+					entity_id: evt.options.entity_id,
+				})
+			},
+		},
+		cover_stop: {
+			name: 'Cover: Stop',
+			options: [EntityMultiplePicker(initialState, 'cover')],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'cover', 'stop_cover', {
+					entity_id: evt.options.entity_id,
+				})
+			},
+		},
+		cover_toggle: {
+			name: 'Cover: Toggle open/close',
+			options: [EntityMultiplePicker(initialState, 'cover')],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'cover', 'toggle', {
+					entity_id: evt.options.entity_id,
+				})
+			},
+		},
+		cover_set_position: {
+			name: 'Cover: Set position (percentage)',
+			options: [
+				EntityMultiplePicker(initialState, 'cover'),
+				{
+					type: 'number',
+					label: 'Position (0 = closed, 100 = open)',
+					id: 'position',
+					default: 50,
+					min: 0,
+					max: 100,
+					step: 1,
+					range: true,
+				},
+			],
+			callback: async (evt) => {
+				const { client } = getProps()
+				if (!client) return
+
+				await callService(client, 'cover', 'set_cover_position', {
+					entity_id: evt.options.entity_id,
+					position: Number(evt.options.position),
+				})
+			},
 		},
 		call_service: {
 			name: 'Call Service',
