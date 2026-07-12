@@ -24,6 +24,11 @@
 - Input Select: Previous
 - Input Select: Select
 - Set group on/off state
+- Cover: Open
+- Cover: Close
+- Cover: Stop
+- Cover: Toggle open/close
+- Cover: Set position (percentage)
 - Climate: Set on/off state
 - Climate: Set HVAC mode
 - Climate: Set target temperature
@@ -37,6 +42,7 @@
 - Binary sensor state
 - Input select state
 - Group on state
+- Cover open/closed state
 - Climate HVAC mode
 - Climate HVAC action
 
