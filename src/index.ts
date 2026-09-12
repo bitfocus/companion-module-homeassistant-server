@@ -13,9 +13,10 @@ import { type DeviceConfig, DeviceSecrets, GetConfigFields } from './config.js'
 import { GetFeedbacksList } from './feedback.js'
 import { createSocket, hassErrorToString } from './hass-socket.js'
 import { GetPresetsList } from './presets.js'
-import { InitVariables, updateVariables } from './variables.js'
+import { InitVariables, updateVariables, type IncludedEntities } from './variables.js'
 import { InstanceBase, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
 import { UpgradeScripts } from './upgrades.js'
+import { compileAttributeFilter, compileFilter, type AttributeFilter, type EntityFilter } from './filter.js'
 import { stripTrailingSlash } from './util.js'
 import { HassEntitiesWithChanges, entitiesColl } from './hass/entities.js'
 import { EntitySubscriptions } from './state.js'
@@ -40,6 +41,12 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 	private unsubscribeEntities: UnsubscribeFunc | undefined
 	private unsubscribeServices: UnsubscribeFunc | undefined
 
+	// defaults for variable filtering
+	private entityFilter: EntityFilter = () => true
+	private attributeFilter: AttributeFilter = () => true
+	private disableVariables = false
+	private includedEntities: IncludedEntities = new Map()
+
 	private pendingState: HassEntitiesWithChanges | undefined
 
 	constructor(internal: unknown) {
@@ -62,7 +69,7 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 	public async init(config: DeviceConfig, _isFirst: boolean, secrets: DeviceSecrets): Promise<void> {
 		await this.configUpdated(config, secrets)
 
-		InitVariables(this, this.state)
+		this.refreshVariableDefinitions()
 		this.setPresetDefinitions(...GetPresetsList(this.state))
 		this.setFeedbackDefinitions(GetFeedbacksList(this.state, () => this.stateObj, this.entitySubscriptions))
 		this.setActionDefinitions(
@@ -77,6 +84,10 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 	public async configUpdated(config: DeviceConfig, secrets: DeviceSecrets): Promise<void> {
 		this.config = config
 		this.secrets = secrets
+
+		this.entityFilter = compileFilter(config)
+		this.attributeFilter = compileAttributeFilter(config)
+		this.disableVariables = !!config.variables_disable
 
 		if (this.connecting) {
 			this.needsReconnect = true
@@ -238,6 +249,20 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 			})
 	}
 
+	/**
+	 * (Re)build the variable definitions and cache the included entities for the
+	 * value-update path. Runs only when the entity list changes.
+	 */
+	private refreshVariableDefinitions(): void {
+		if (this.disableVariables) {
+			this.setVariableDefinitions({})
+			this.includedEntities = new Map()
+			return
+		}
+
+		this.includedEntities = InitVariables(this, this.state, this.entityFilter, this.attributeFilter)
+	}
+
 	private deboundProcessStateChange = (newState: HassEntitiesWithChanges): void => {
 		if (!this.pendingState) {
 			this.pendingState = newState
@@ -299,10 +324,12 @@ export default class ControllerInstance extends InstanceBase<HassSchema> {
 				this.setActionDefinitions(
 					GetActionsList(() => ({ state: this.state, client: this.client, services: this.services })),
 				)
-				InitVariables(this, this.state)
+				this.refreshVariableDefinitions()
 			}
 
-			updateVariables(this, newState)
+			if (!this.disableVariables) {
+				updateVariables(this, newState, this.includedEntities)
+			}
 
 			this.#checkAffectedFeedbacks(newState)
 		},
